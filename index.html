@@ -217,6 +217,7 @@
     .eyebrow { margin: 0 0 5px; color: var(--primary); font-size: .76rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
     .detail-title { margin: 0; font-size: clamp(1.7rem, 3.3vw, 2.6rem); line-height: 1.08; letter-spacing: -.045em; overflow-wrap: anywhere; }
     .detail-prize { margin: 9px 0 0; color: var(--muted); font-size: 1rem; }
+    .detail-prize + .detail-prize { margin-top: 3px; }
     .head-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
     .more-menu-wrap { position: relative; }
     .more-menu {
@@ -263,6 +264,19 @@
     .stat-value.small { font-size: 1rem; line-height: 1.35; letter-spacing: -.01em; }
     .main-progress { height: 7px; margin-top: 12px; overflow: hidden; border-radius: 999px; background: #edf0f5; }
     .main-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--primary), #8b7ff5); transition: width .35s ease; }
+    .finance-summary { margin-top: 14px; padding: 18px 19px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgba(23,33,59,.04); }
+    .finance-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+    .finance-head strong { font-size: .92rem; }
+    .finance-head span { color: var(--muted); font-size: .78rem; }
+    .finance-metrics { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+    .finance-metric { min-width: 0; padding: 13px 14px; border-radius: 12px; background: var(--soft); }
+    .finance-metric small { display: block; color: var(--muted); font-size: .75rem; font-weight: 700; }
+    .finance-metric strong { display: block; margin-top: 4px; font-size: 1.1rem; letter-spacing: -.02em; overflow-wrap: anywhere; }
+    .finance-metric.received { background: var(--success-soft); }
+    .finance-metric.received strong { color: #087958; }
+    .finance-metric.pending { background: var(--warning-soft); }
+    .finance-metric.pending strong { color: #8a5b08; }
+    .finance-note { margin: 11px 0 0; color: var(--muted); font-size: .78rem; }
 
     .content-card { margin-top: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 10px 28px rgba(23,33,59,.05); }
     .tabs { display: flex; gap: 4px; padding: 8px; border-bottom: 1px solid var(--line); }
@@ -277,6 +291,7 @@
     .search-box { position: relative; min-width: min(290px, 100%); }
     .search-box svg { position: absolute; left: 12px; top: 50%; color: #98a2b3; transform: translateY(-50%); pointer-events: none; }
     .search-box input { width: 100%; height: 42px; padding: 0 13px 0 39px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
+    .select-control { min-height: 42px; padding: 0 36px 0 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); cursor: pointer; }
     .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; margin-bottom: 15px; color: var(--muted); font-size: .79rem; }
     .legend-item { display: inline-flex; align-items: center; gap: 7px; }
     .legend-swatch { width: 14px; height: 14px; border: 1px solid #d8ddea; border-radius: 4px; background: #fff; }
@@ -308,7 +323,7 @@
     .buyers-list { display: grid; gap: 10px; }
     .buyer-row {
       display: grid;
-      grid-template-columns: minmax(170px, 1.2fr) minmax(145px, .9fr) minmax(220px, 1.8fr) auto;
+      grid-template-columns: minmax(180px, 1.1fr) minmax(220px, 1.5fr) minmax(170px, .9fr) auto;
       align-items: center;
       gap: 16px;
       padding: 15px 16px;
@@ -318,11 +333,18 @@
     }
     .buyer-name { min-width: 0; }
     .buyer-name strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .buyer-name small { color: var(--muted); }
+    .buyer-name small { display: block; margin-top: 4px; color: var(--muted); }
     .phone-link { color: var(--success); font-size: .9rem; font-weight: 700; text-decoration: none; }
     .phone-link:hover { text-decoration: underline; }
     .number-chips { display: flex; flex-wrap: wrap; gap: 5px; }
     .number-chip { min-width: 32px; padding: 4px 7px; border-radius: 7px; background: var(--primary-soft); color: var(--primary-dark); font-size: .75rem; font-weight: 800; text-align: center; }
+    .payment-cell { min-width: 0; }
+    .payment-amount { display: block; font-size: .93rem; font-weight: 850; }
+    .payment-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 5px; color: var(--muted); font-size: .74rem; }
+    .payment-badge { display: inline-flex; align-items: center; padding: 3px 7px; border-radius: 999px; font-size: .7rem; font-weight: 850; }
+    .payment-badge.paid { background: var(--success-soft); color: #087958; }
+    .payment-badge.pending { background: var(--warning-soft); color: #8a5b08; }
+    .payment-badge.unset { background: #edf0f5; color: var(--muted); }
     .row-actions { display: flex; gap: 3px; }
     .row-actions .icon-btn { color: var(--muted); }
     .row-actions .icon-btn:hover { background: var(--soft); color: var(--ink); }
@@ -384,6 +406,7 @@
     .choice-card span { min-height: 66px; display: flex; flex-direction: column; justify-content: center; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); font-size: .86rem; font-weight: 750; }
     .choice-card small { color: var(--muted); font-weight: 500; }
     .choice-card input:checked + span { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); box-shadow: 0 0 0 1px var(--primary); }
+    .choice-card input:disabled + span { background: #f4f5f7; color: #98a2b3; cursor: not-allowed; }
     .choice-card input:focus-visible + span { outline: 3px solid rgba(108,92,231,.25); outline-offset: 2px; }
     .selected-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 12px; padding: 12px 14px; border-radius: 12px; background: var(--primary-soft); color: var(--primary-dark); }
     .selected-summary strong { font-size: .9rem; }
@@ -396,6 +419,10 @@
     .picker-number.is-selected { border-color: var(--primary); background: var(--primary); color: #fff; }
     .picker-number:disabled { background: #f0f2f6; color: #a0a8b7; opacity: 1; text-decoration: line-through; }
     .picker-note { margin: 10px 0 0; color: var(--muted); font-size: .75rem; }
+    .payment-panel { margin-top: 20px; padding: 17px; border: 1px solid var(--line); border-radius: 15px; background: #fafbfe; }
+    .payment-panel h3 { margin: 0 0 14px; font-size: 1rem; letter-spacing: -.01em; }
+    .payment-panel .choice-card span { background: #fff; }
+    .payment-panel .field input[readonly] { background: #f2f3f7; color: var(--muted); cursor: default; }
     .confirm-icon { width: 56px; height: 56px; display: grid; place-items: center; margin-bottom: 16px; border-radius: 17px; background: var(--danger-soft); color: var(--danger); }
     .confirm-copy h2 { margin: 0 0 8px; font-size: 1.3rem; }
     .confirm-copy p { margin: 0; color: var(--muted); }
@@ -440,7 +467,7 @@
       .app-shell { grid-template-columns: 280px minmax(0, 1fr); }
       .workspace { padding-inline: 24px; }
       .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-      .buyer-row { grid-template-columns: minmax(160px,1fr) minmax(140px,.8fr) minmax(180px,1fr) auto; gap: 11px; }
+      .buyer-row { grid-template-columns: minmax(170px,1fr) minmax(180px,1.2fr) minmax(150px,.9fr) auto; gap: 11px; }
     }
     @media (max-width: 780px) {
       .app-shell { display: block; }
@@ -459,11 +486,12 @@
       .winner-banner .secondary-btn { grid-column: 1 / -1; width: 100%; }
       .toolbar { align-items: stretch; flex-direction: column; }
       .search-box { width: 100%; min-width: 0; }
+      .finance-metrics { grid-template-columns: 1fr; }
       .buyer-row { grid-template-columns: minmax(0,1fr) auto; gap: 11px; }
       .buyer-name { grid-column: 1; }
-      .phone-cell { grid-column: 1; }
       .buyer-numbers { grid-column: 1 / -1; }
-      .row-actions { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+      .payment-cell { grid-column: 1 / -1; }
+      .row-actions { grid-column: 2; grid-row: 1; align-self: start; }
     }
     @media (max-width: 520px) {
       .workspace { padding-inline: 12px; }
@@ -563,6 +591,7 @@
             <p class="eyebrow" id="raffleStatusText">Rifa ativa</p>
             <h2 class="detail-title" id="raffleTitle">—</h2>
             <p class="detail-prize" id="rafflePrize">—</p>
+            <p class="detail-prize" id="rafflePrice">—</p>
           </div>
           <div class="head-actions">
             <button class="secondary-btn" id="addBuyerBtn" type="button">
@@ -624,6 +653,28 @@
           </article>
         </div>
 
+        <section class="finance-summary" aria-label="Resumo financeiro da rifa">
+          <div class="finance-head">
+            <strong>Controle de pagamentos</strong>
+            <span id="financeBuyerCount">0 compradores</span>
+          </div>
+          <div class="finance-metrics">
+            <div class="finance-metric">
+              <small>Total das vendas</small>
+              <strong id="financeTotal">R$ 0,00</strong>
+            </div>
+            <div class="finance-metric received">
+              <small>Valor recebido</small>
+              <strong id="financeReceived">R$ 0,00</strong>
+            </div>
+            <div class="finance-metric pending">
+              <small>A receber</small>
+              <strong id="financePending">R$ 0,00</strong>
+            </div>
+          </div>
+          <p class="finance-note" id="financeUnsetNote" hidden></p>
+        </section>
+
         <section class="content-card">
           <div class="tabs" role="tablist" aria-label="Conteúdo da rifa">
             <button class="tab-btn is-active" id="numbersTab" type="button" role="tab" aria-selected="true" aria-controls="numbersPanel">
@@ -664,10 +715,18 @@
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
                 <input id="buyerSearch" type="search" placeholder="Buscar nome, telefone ou número" aria-label="Buscar comprador">
               </label>
-              <button class="primary-btn" id="addBuyerPanelBtn" type="button">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19a6 6 0 0 0-12 0M9 13a4 4 0 1 0 0-8M18 8v6M15 11h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Novo comprador
-              </button>
+              <div class="toolbar-group">
+                <select class="select-control" id="paymentFilter" aria-label="Filtrar por situação do pagamento">
+                  <option value="all">Todos os pagamentos</option>
+                  <option value="pago">Pagos</option>
+                  <option value="pendente">Pendentes</option>
+                  <option value="unset">Não informados</option>
+                </select>
+                <button class="primary-btn" id="addBuyerPanelBtn" type="button">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19a6 6 0 0 0-12 0M9 13a4 4 0 1 0 0-8M18 8v6M15 11h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Novo comprador
+                </button>
+              </div>
             </div>
             <div class="buyers-list" id="buyersList"></div>
           </div>
@@ -692,8 +751,18 @@
               <input id="raffleName" name="name" maxlength="100" placeholder="Ex.: Rifa de aniversário" required>
             </div>
             <div class="field full">
-              <label for="rafflePrize">Prêmio</label>
+              <label for="rafflePrizeInput">Prêmio</label>
               <input id="rafflePrizeInput" name="prize" maxlength="180" placeholder="Ex.: Smartphone Samsung Galaxy" required>
+            </div>
+            <div class="field">
+              <label for="raffleTotal">Quantidade de números</label>
+              <input id="raffleTotal" name="total" type="number" min="1" max="10000" step="1" value="100" required>
+              <small class="field-hint">De 1 a 10.000 números.</small>
+            </div>
+            <div class="field">
+              <label for="raffleValue">Valor de cada número</label>
+              <input id="raffleValue" name="value" type="text" inputmode="decimal" placeholder="R$ 10,00" required>
+              <small class="field-hint">Este será o valor padrão por número.</small>
             </div>
             <div class="field full">
               <span class="field-label">Realizar o sorteio</span>
@@ -708,14 +777,9 @@
                 </label>
               </div>
             </div>
-            <div class="field" id="drawDateField">
+            <div class="field full" id="drawDateField">
               <label for="raffleDate">Data do sorteio</label>
               <input id="raffleDate" name="drawDate" type="datetime-local" required>
-            </div>
-            <div class="field">
-              <label for="raffleTotal">Quantidade de números</label>
-              <input id="raffleTotal" name="total" type="number" min="1" max="10000" step="1" value="100" required>
-              <small class="field-hint">De 1 a 10.000 números.</small>
             </div>
           </div>
         </div>
@@ -759,6 +823,53 @@
           </div>
           <div class="picker-grid" id="pickerGrid"></div>
           <p class="picker-note" id="pickerNote">Números riscados já pertencem a outro comprador.</p>
+          <section class="payment-panel" aria-labelledby="paymentPanelTitle">
+            <h3 id="paymentPanelTitle">Pagamento</h3>
+            <div class="form-grid">
+              <div class="field full">
+                <span class="field-label">Valor desta compra</span>
+                <div class="choice-grid">
+                  <label class="choice-card">
+                    <input type="radio" name="buyerValueMode" value="default" checked>
+                    <span>Valor padrão<small id="defaultValueDescription">Calculado pelos números selecionados</small></span>
+                  </label>
+                  <label class="choice-card">
+                    <input type="radio" name="buyerValueMode" value="custom">
+                    <span>Outro valor<small>Desconto ou contribuição maior</small></span>
+                  </label>
+                </div>
+              </div>
+              <div class="field">
+                <label for="buyerAmount">Valor total</label>
+                <input id="buyerAmount" type="text" inputmode="decimal" placeholder="R$ 0,00" required readonly>
+                <small class="field-hint" id="buyerAmountHint">Valor calculado automaticamente.</small>
+              </div>
+              <div class="field">
+                <label for="paymentMethod">Forma de pagamento</label>
+                <select id="paymentMethod" required>
+                  <option value="pix">Pix</option>
+                  <option value="dinheiro">Dinheiro</option>
+                  <option value="cartao">Cartão</option>
+                  <option value="transferencia">Transferência</option>
+                  <option value="outro">Outro</option>
+                  <option value="a_definir">A definir</option>
+                </select>
+              </div>
+              <div class="field full">
+                <span class="field-label">Situação do pagamento</span>
+                <div class="choice-grid">
+                  <label class="choice-card">
+                    <input type="radio" name="paymentStatus" value="pago">
+                    <span>Pago<small>O valor já foi recebido</small></span>
+                  </label>
+                  <label class="choice-card">
+                    <input type="radio" name="paymentStatus" value="pendente">
+                    <span>Pendente<small>A pessoa ainda vai pagar</small></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
         <footer class="modal-foot">
           <button class="secondary-btn" type="button" data-close="buyerModal">Cancelar</button>
@@ -898,7 +1009,7 @@ service cloud.firestore {
     const elements = {
       sidebar: $("#sidebar"), drawerBackdrop: $("#drawerBackdrop"), raffleList: $("#raffleList"),
       emptyState: $("#emptyState"), detailView: $("#detailView"), connection: $("#connectionStatus"),
-      title: $("#raffleTitle"), prize: $("#rafflePrize"), statusText: $("#raffleStatusText"),
+      title: $("#raffleTitle"), prize: $("#rafflePrize"), price: $("#rafflePrice"), statusText: $("#raffleStatusText"),
       totalNumbers: $("#totalNumbers"), soldNumbers: $("#soldNumbers"), availableNumbers: $("#availableNumbers"),
       salesProgress: $("#salesProgress"), drawRule: $("#drawRule"), numberGrid: $("#numberGrid"),
       numbersFooter: $("#numbersFooter"), numberResultsNote: $("#numberResultsNote"), buyersList: $("#buyersList"),
@@ -917,6 +1028,46 @@ service cloud.firestore {
     }
 
     function digits(value = "") { return String(value).replace(/\D/g, ""); }
+
+    function parseCurrencyToCents(value) {
+      const text = String(value ?? "").trim();
+      if (!text) return null;
+      const cleaned = text.replace(/R\$/gi, "").replace(/\s/g, "").replace(/[^\d,.-]/g, "");
+      const normalized = cleaned.includes(",")
+        ? cleaned.replace(/\./g, "").replace(",", ".")
+        : cleaned;
+      const amount = Number(normalized);
+      if (!Number.isFinite(amount) || amount < 0) return null;
+      return Math.round(amount * 100);
+    }
+
+    function formatCurrencyInput(cents) {
+      const safe = Number.isInteger(cents) && cents >= 0 ? cents : 0;
+      return (safe / 100).toFixed(2).replace(".", ",");
+    }
+
+    function formatCurrency(cents) {
+      const safe = Number.isInteger(cents) && cents >= 0 ? cents : 0;
+      return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(safe / 100);
+    }
+
+    function getRaffleUnitValueCents(raffle) {
+      return Number.isInteger(raffle?.valorNumeroCentavos) && raffle.valorNumeroCentavos >= 0
+        ? raffle.valorNumeroCentavos
+        : 0;
+    }
+
+    function getBuyerTotalCents(buyer, raffle) {
+      if (Number.isInteger(buyer?.valorTotalCentavos) && buyer.valorTotalCentavos >= 0) return buyer.valorTotalCentavos;
+      return getRaffleUnitValueCents(raffle) * (buyer?.numeros || []).length;
+    }
+
+    function paymentMethodLabel(value) {
+      return ({
+        pix: "Pix", dinheiro: "Dinheiro", cartao: "Cartão",
+        transferencia: "Transferência", outro: "Outro", a_definir: "A definir"
+      })[value] || "Não informado";
+    }
 
     function formatPhone(value = "") {
       const raw = digits(value).replace(/^55(?=\d{10,11}$)/, "").slice(0, 11);
@@ -1038,12 +1189,13 @@ service cloud.firestore {
         const sold = Object.keys(raffle.numerosOcupados || {}).length;
         const percentage = total ? Math.min(100, Math.round(sold / total * 100)) : 0;
         const done = Boolean(raffle.vencedor);
+        const unitValue = getRaffleUnitValueCents(raffle);
         return `<button class="raffle-card ${raffle.id === state.selectedId ? "is-active" : ""}" type="button" data-raffle-id="${escapeHtml(raffle.id)}">
           <span class="raffle-card-title">
             <strong>${escapeHtml(raffle.nome || "Rifa sem nome")}</strong>
             <span class="status-chip ${done ? "done" : ""}">${done ? "Sorteada" : "Ativa"}</span>
           </span>
-          <span class="raffle-card-meta"><span>${sold} de ${total}</span><span>${percentage}%</span></span>
+          <span class="raffle-card-meta"><span>${sold} de ${total}</span><span>${unitValue ? `${formatCurrency(unitValue)} cada` : "Sem valor"}</span></span>
           <span class="mini-progress"><span style="width:${percentage}%"></span></span>
         </button>`;
       }).join("");
@@ -1059,8 +1211,18 @@ service cloud.firestore {
       const sold = Object.keys(raffle.numerosOcupados || {}).length;
       const available = Math.max(0, total - sold);
       const percentage = total ? Math.min(100, sold / total * 100) : 0;
+      const unitValue = getRaffleUnitValueCents(raffle);
+      const finances = state.buyers.reduce((summary, buyer) => {
+        const amount = getBuyerTotalCents(buyer, raffle);
+        summary.total += amount;
+        if (buyer.statusPagamento === "pago") summary.received += amount;
+        else if (buyer.statusPagamento === "pendente") summary.pending += amount;
+        else summary.unset += 1;
+        return summary;
+      }, { total: 0, received: 0, pending: 0, unset: 0 });
       elements.title.textContent = raffle.nome || "Rifa sem nome";
       elements.prize.textContent = `Prêmio: ${raffle.premio || "Não informado"}`;
+      elements.price.textContent = unitValue ? `Valor por número: ${formatCurrency(unitValue)}` : "Valor por número ainda não informado";
       elements.statusText.textContent = raffle.vencedor ? "Rifa sorteada" : "Rifa ativa";
       elements.totalNumbers.textContent = total.toLocaleString("pt-BR");
       elements.soldNumbers.textContent = sold.toLocaleString("pt-BR");
@@ -1069,6 +1231,14 @@ service cloud.firestore {
       elements.drawRule.textContent = raffle.tipoSorteio === "soldout" ? "Ao esgotar os números" : formatDate(raffle.dataSorteio);
       elements.numbersTabCount.textContent = total;
       elements.buyersTabCount.textContent = state.buyers.length;
+      $("#financeBuyerCount").textContent = `${state.buyers.length} ${state.buyers.length === 1 ? "comprador" : "compradores"}`;
+      $("#financeTotal").textContent = formatCurrency(finances.total);
+      $("#financeReceived").textContent = formatCurrency(finances.received);
+      $("#financePending").textContent = formatCurrency(finances.pending);
+      $("#financeUnsetNote").hidden = finances.unset === 0;
+      $("#financeUnsetNote").textContent = finances.unset
+        ? `${finances.unset} ${finances.unset === 1 ? "comprador ainda está" : "compradores ainda estão"} sem situação de pagamento. Edite ${finances.unset === 1 ? "o registro" : "os registros"} para completar o controle.`
+        : "";
       $("#drawBtn").innerHTML = raffle.vencedor
         ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6v5h-5M4 18v-5h5M18.2 9A7 7 0 0 0 6 7.2L4 11M6 15a7 7 0 0 0 12 1.8l2-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Sortear novamente'
         : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 1.5 4.3L18 9l-4.5 1.7L12 15l-1.5-4.3L6 9l4.5-1.7L12 3ZM18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z" stroke-linecap="round" stroke-linejoin="round"/></svg> Sortear';
@@ -1132,27 +1302,44 @@ service cloud.firestore {
       if (!raffle) return;
       const total = Number(raffle.quantidadeNumeros || 0);
       const search = $("#buyerSearch").value.trim().toLocaleLowerCase("pt-BR");
+      const paymentFilter = $("#paymentFilter").value;
       const buyers = state.buyers.filter(buyer => {
+        const status = ["pago", "pendente"].includes(buyer.statusPagamento) ? buyer.statusPagamento : "unset";
+        if (paymentFilter !== "all" && status !== paymentFilter) return false;
         if (!search) return true;
         const numbers = (buyer.numeros || []).map(number => formatNumber(number, total)).join(" ");
-        return `${buyer.nome || ""} ${buyer.whatsapp || ""} ${numbers}`.toLocaleLowerCase("pt-BR").includes(search);
+        const payment = `${paymentMethodLabel(buyer.formaPagamento)} ${status} ${formatCurrency(getBuyerTotalCents(buyer, raffle))}`;
+        return `${buyer.nome || ""} ${buyer.whatsapp || ""} ${numbers} ${payment}`.toLocaleLowerCase("pt-BR").includes(search);
       });
       elements.buyersTabCount.textContent = state.buyers.length;
       if (!buyers.length) {
         elements.buyersList.innerHTML = `<div class="list-empty">
           <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M16 20a6 6 0 0 0-12 0M10 14a4 4 0 1 0 0-8M18 8v6M15 11h6" stroke-linecap="round"/></svg>
-          <strong>${search ? "Nenhum comprador encontrado" : "Nenhum comprador cadastrado"}</strong>
-          <span>${search ? "Tente outro termo de busca." : "Cadastre a primeira pessoa e selecione seus números."}</span>
+          <strong>${search || paymentFilter !== "all" ? "Nenhum comprador encontrado" : "Nenhum comprador cadastrado"}</strong>
+          <span>${search || paymentFilter !== "all" ? "Ajuste a busca ou o filtro de pagamento." : "Cadastre a primeira pessoa e selecione seus números."}</span>
         </div>`;
         return;
       }
       elements.buyersList.innerHTML = buyers.map(buyer => {
         const sorted = [...(buyer.numeros || [])].sort((a,b) => a-b);
         const chips = sorted.map(number => `<span class="number-chip">${formatNumber(number, total)}</span>`).join("");
+        const amountKnown = (Number.isInteger(buyer.valorTotalCentavos) && buyer.valorTotalCentavos >= 0) || getRaffleUnitValueCents(raffle) > 0;
+        const amount = getBuyerTotalCents(buyer, raffle);
+        const status = ["pago", "pendente"].includes(buyer.statusPagamento) ? buyer.statusPagamento : "unset";
+        const statusLabel = status === "pago" ? "Pago" : status === "pendente" ? "Pendente" : "Não informado";
         return `<article class="buyer-row" data-buyer-id="${escapeHtml(buyer.id)}">
-          <div class="buyer-name"><strong>${escapeHtml(buyer.nome || "Sem nome")}</strong><small>${sorted.length} ${sorted.length === 1 ? "número" : "números"}</small></div>
-          <div class="phone-cell"><a class="phone-link" href="${whatsappUrl(buyer.whatsapp)}" target="_blank" rel="noopener">${escapeHtml(formatPhone(buyer.whatsapp) || buyer.whatsapp || "Sem telefone")}</a></div>
+          <div class="buyer-name">
+            <strong>${escapeHtml(buyer.nome || "Sem nome")}</strong>
+            <small><a class="phone-link" href="${whatsappUrl(buyer.whatsapp)}" target="_blank" rel="noopener">${escapeHtml(formatPhone(buyer.whatsapp) || buyer.whatsapp || "Sem telefone")}</a></small>
+          </div>
           <div class="buyer-numbers number-chips">${chips}</div>
+          <div class="payment-cell">
+            <strong class="payment-amount">${amountKnown ? formatCurrency(amount) : "Valor não informado"}</strong>
+            <div class="payment-meta">
+              <span class="payment-badge ${status}">${statusLabel}</span>
+              <span>${escapeHtml(paymentMethodLabel(buyer.formaPagamento))}</span>
+            </div>
+          </div>
           <div class="row-actions">
             <button class="icon-btn" type="button" data-action="edit-buyer" aria-label="Editar ${escapeHtml(buyer.nome)}" title="Editar">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 5 5 5M4 20l4.2-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1230,6 +1417,9 @@ service cloud.firestore {
       $("#raffleName").value = raffle?.nome || "";
       $("#rafflePrizeInput").value = raffle?.premio || "";
       $("#raffleTotal").value = raffle?.quantidadeNumeros || 100;
+      $("#raffleValue").value = Number.isInteger(raffle?.valorNumeroCentavos)
+        ? formatCurrencyInput(raffle.valorNumeroCentavos)
+        : "";
       const mode = raffle?.tipoSorteio || "date";
       $(`input[name="drawMode"][value="${mode}"]`).checked = true;
       const localDate = raffle?.dataSorteio ? new Date(raffle.dataSorteio) : new Date(Date.now() + 7 * 86400000);
@@ -1246,10 +1436,10 @@ service cloud.firestore {
       $("#raffleDate").required = isDate;
     }
 
-    async function createRaffleRecord({ nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros }) {
+    async function createRaffleRecord({ nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros, valorNumeroCentavos }) {
       const ref = doc(collection(db, "rifas"));
       await setDoc(ref, {
-        nome, premio, tipoSorteio, dataSorteio: dataSorteio || null, quantidadeNumeros,
+        nome, premio, tipoSorteio, dataSorteio: dataSorteio || null, quantidadeNumeros, valorNumeroCentavos,
         numerosOcupados: {}, vencedor: null, criadoEm: serverTimestamp(), atualizadoEm: serverTimestamp()
       });
       return ref.id;
@@ -1261,9 +1451,11 @@ service cloud.firestore {
       const premio = $("#rafflePrizeInput").value.trim();
       const tipoSorteio = $('input[name="drawMode"]:checked').value;
       const total = Number($("#raffleTotal").value);
+      const valorNumeroCentavos = parseCurrencyToCents($("#raffleValue").value);
       const rawDate = $("#raffleDate").value;
       if (!nome || !premio) return toast("Preencha o nome da rifa e o prêmio.", "error");
       if (!Number.isInteger(total) || total < 1 || total > 10000) return toast("Informe uma quantidade entre 1 e 10.000.", "error");
+      if (!Number.isInteger(valorNumeroCentavos) || valorNumeroCentavos <= 0) return toast("Informe um valor válido e maior que zero para cada número.", "error");
       if (tipoSorteio === "date" && !rawDate) return toast("Informe a data do sorteio.", "error");
       const dataSorteio = tipoSorteio === "date" ? new Date(rawDate).toISOString() : null;
 
@@ -1274,11 +1466,11 @@ service cloud.firestore {
           const highestOccupied = Math.max(0, ...Object.keys(raffle?.numerosOcupados || {}).map(Number));
           if (total < highestOccupied) throw new Error(`Existem números escolhidos até ${highestOccupied}. A quantidade não pode ser menor que isso.`);
           await updateDoc(doc(db, "rifas", state.raffleEditingId), {
-            nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros: total, atualizadoEm: serverTimestamp()
+            nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros: total, valorNumeroCentavos, atualizadoEm: serverTimestamp()
           });
           toast("Rifa atualizada com sucesso.");
         } else {
-          const id = await createRaffleRecord({ nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros: total });
+          const id = await createRaffleRecord({ nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros: total, valorNumeroCentavos });
           state.selectedId = id;
           localStorage.setItem("rifas:selected", id);
           toast("Rifa criada com sucesso.");
@@ -1296,13 +1488,56 @@ service cloud.firestore {
       if (!raffle) return;
       state.buyerEditingId = buyer?.id || null;
       state.buyerSelection = new Set((buyer?.numeros || initialNumbers).map(Number));
+      const unitValue = getRaffleUnitValueCents(raffle);
+      const defaultTotal = unitValue * state.buyerSelection.size;
+      const savedTotal = Number.isInteger(buyer?.valorTotalCentavos) ? buyer.valorTotalCentavos : defaultTotal;
+      const useDefaultValue = unitValue > 0 && (!buyer || !Number.isInteger(buyer.valorTotalCentavos) || buyer.valorTotalCentavos === defaultTotal);
       $("#buyerModalTitle").textContent = buyer ? "Editar comprador" : "Novo comprador";
       $("#saveBuyerBtn").textContent = buyer ? "Salvar alterações" : "Salvar comprador";
       $("#buyerName").value = buyer?.nome || "";
       $("#buyerPhone").value = formatPhone(buyer?.whatsapp || "");
       $("#pickerSearch").value = "";
+      const defaultValueRadio = $('input[name="buyerValueMode"][value="default"]');
+      const customValueRadio = $('input[name="buyerValueMode"][value="custom"]');
+      defaultValueRadio.disabled = unitValue <= 0;
+      defaultValueRadio.checked = useDefaultValue;
+      customValueRadio.checked = !useDefaultValue;
+      $("#buyerAmount").value = formatCurrencyInput(savedTotal);
+      $$('input[name="paymentStatus"]').forEach(input => { input.checked = false; });
+      const paymentStatus = buyer?.statusPagamento || (buyer ? "" : "pago");
+      if (["pago", "pendente"].includes(paymentStatus)) {
+        $(`input[name="paymentStatus"][value="${paymentStatus}"]`).checked = true;
+      }
+      const method = buyer?.formaPagamento || (buyer ? "a_definir" : "pix");
+      $("#paymentMethod").value = [...$("#paymentMethod").options].some(option => option.value === method) ? method : "outro";
       renderPicker();
+      updatePaymentStatusUI();
       openModal("buyerModal");
+    }
+
+    function syncBuyerAmountWithSelection() {
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      const unitValue = getRaffleUnitValueCents(raffle);
+      const defaultTotal = unitValue * state.buyerSelection.size;
+      const defaultRadio = $('input[name="buyerValueMode"][value="default"]');
+      const customRadio = $('input[name="buyerValueMode"][value="custom"]');
+      defaultRadio.disabled = unitValue <= 0;
+      if (unitValue <= 0 && defaultRadio.checked) customRadio.checked = true;
+      $("#defaultValueDescription").textContent = unitValue > 0
+        ? `${formatCurrency(unitValue)} × ${state.buyerSelection.size} = ${formatCurrency(defaultTotal)}`
+        : "Edite a rifa para definir o valor padrão";
+      const useDefault = $('input[name="buyerValueMode"]:checked')?.value === "default";
+      $("#buyerAmount").readOnly = useDefault;
+      $("#buyerAmountHint").textContent = useDefault
+        ? "Valor calculado automaticamente pelos números selecionados."
+        : "Digite o valor total combinado com esta pessoa.";
+      if (useDefault) $("#buyerAmount").value = formatCurrencyInput(defaultTotal);
+    }
+
+    function updatePaymentStatusUI() {
+      const status = $('input[name="paymentStatus"]:checked')?.value;
+      if (status === "pago" && $("#paymentMethod").value === "a_definir") $("#paymentMethod").value = "pix";
     }
 
     function renderPicker() {
@@ -1330,9 +1565,10 @@ service cloud.firestore {
       $("#pickerNote").textContent = numbers.length > visible.length
         ? `Exibindo os primeiros ${visible.length} resultados. Use a busca para localizar outro número.`
         : "Números riscados já pertencem a outro comprador.";
+      syncBuyerAmountWithSelection();
     }
 
-    async function saveBuyerRecord({ raffleId, buyerId = null, nome, whatsapp, numeros }) {
+    async function saveBuyerRecord({ raffleId, buyerId = null, nome, whatsapp, numeros, valorTotalCentavos = null, formaPagamento, statusPagamento }) {
       const raffleRef = doc(db, "rifas", raffleId);
       const buyerRef = buyerId ? doc(db, "rifas", raffleId, "compradores", buyerId) : doc(collection(db, "rifas", raffleId, "compradores"));
       await runTransaction(db, async transaction => {
@@ -1343,6 +1579,13 @@ service cloud.firestore {
         const uniqueNumbers = [...new Set(numeros.map(Number))].sort((a,b) => a-b);
         if (!uniqueNumbers.length) throw new Error("Selecione pelo menos um número.");
         if (uniqueNumbers.some(number => !Number.isInteger(number) || number < 1 || number > total)) throw new Error("Há um número fora do intervalo desta rifa.");
+        const resolvedAmount = Number.isInteger(valorTotalCentavos)
+          ? valorTotalCentavos
+          : getRaffleUnitValueCents(raffleData) * uniqueNumbers.length;
+        if (resolvedAmount < 0) throw new Error("O valor da compra é inválido.");
+        if (!["pago", "pendente"].includes(statusPagamento)) throw new Error("Informe se o pagamento está pago ou pendente.");
+        if (!["pix", "dinheiro", "cartao", "transferencia", "outro", "a_definir"].includes(formaPagamento)) throw new Error("Informe uma forma de pagamento válida.");
+        if (statusPagamento === "pago" && formaPagamento === "a_definir") throw new Error("Informe como o pagamento foi realizado.");
         let oldNumbers = [];
         if (buyerId) {
           const buyerSnap = await transaction.get(buyerRef);
@@ -1359,7 +1602,11 @@ service cloud.firestore {
         }
         uniqueNumbers.forEach(number => { occupied[String(number)] = buyerRef.id; });
         transaction.update(raffleRef, { numerosOcupados: occupied, atualizadoEm: serverTimestamp() });
-        const buyerData = { nome, whatsapp: digits(whatsapp), numeros: uniqueNumbers, atualizadoEm: serverTimestamp() };
+        const buyerData = {
+          nome, whatsapp: digits(whatsapp), numeros: uniqueNumbers,
+          valorTotalCentavos: resolvedAmount, formaPagamento, statusPagamento,
+          atualizadoEm: serverTimestamp()
+        };
         if (!buyerId) buyerData.criadoEm = serverTimestamp();
         transaction.set(buyerRef, buyerData, { merge: true });
       });
@@ -1373,12 +1620,29 @@ service cloud.firestore {
       const nome = $("#buyerName").value.trim();
       const whatsapp = digits($("#buyerPhone").value);
       const numeros = [...state.buyerSelection];
+      const valueMode = $('input[name="buyerValueMode"]:checked')?.value;
+      const statusPagamento = $('input[name="paymentStatus"]:checked')?.value;
+      const formaPagamento = $("#paymentMethod").value;
       if (!nome) return toast("Informe o nome do comprador.", "error");
       if (whatsapp.length < 10 || whatsapp.length > 13) return toast("Informe um número de WhatsApp válido.", "error");
       if (!numeros.length) return toast("Selecione pelo menos um número.", "error");
+      if (!["pago", "pendente"].includes(statusPagamento)) return toast("Informe se o pagamento está pago ou pendente.", "error");
+      if (statusPagamento === "pago" && formaPagamento === "a_definir") return toast("Informe como o pagamento foi realizado.", "error");
+      let valorTotalCentavos;
+      if (valueMode === "default") {
+        const unitValue = getRaffleUnitValueCents(raffle);
+        if (unitValue <= 0) return toast("Defina o valor padrão da rifa ou escolha outro valor.", "error");
+        valorTotalCentavos = unitValue * numeros.length;
+      } else {
+        valorTotalCentavos = parseCurrencyToCents($("#buyerAmount").value);
+        if (!Number.isInteger(valorTotalCentavos) || valorTotalCentavos < 0) return toast("Informe um valor total válido.", "error");
+      }
       try {
         setBusy(true, state.buyerEditingId ? "Atualizando comprador..." : "Cadastrando comprador...");
-        await saveBuyerRecord({ raffleId: raffle.id, buyerId: state.buyerEditingId, nome, whatsapp, numeros });
+        await saveBuyerRecord({
+          raffleId: raffle.id, buyerId: state.buyerEditingId, nome, whatsapp, numeros,
+          valorTotalCentavos, formaPagamento, statusPagamento
+        });
         closeModal("buyerModal");
         toast(state.buyerEditingId ? "Comprador atualizado." : "Comprador cadastrado.");
       } catch (error) {
@@ -1577,7 +1841,20 @@ service cloud.firestore {
       $("#raffleForm").addEventListener("submit", saveRaffle);
       $("#buyerForm").addEventListener("submit", saveBuyer);
       $$('input[name="drawMode"]').forEach(input => input.addEventListener("change", toggleDateField));
+      $("#raffleValue").addEventListener("blur", event => {
+        const cents = parseCurrencyToCents(event.target.value);
+        if (Number.isInteger(cents)) event.target.value = formatCurrencyInput(cents);
+      });
       $("#buyerPhone").addEventListener("input", event => { event.target.value = formatPhone(event.target.value); });
+      $$('input[name="buyerValueMode"]').forEach(input => input.addEventListener("change", () => {
+        syncBuyerAmountWithSelection();
+        if (input.value === "custom" && input.checked) $("#buyerAmount").focus();
+      }));
+      $$('input[name="paymentStatus"]').forEach(input => input.addEventListener("change", updatePaymentStatusUI));
+      $("#buyerAmount").addEventListener("blur", event => {
+        const cents = parseCurrencyToCents(event.target.value);
+        if (Number.isInteger(cents)) event.target.value = formatCurrencyInput(cents);
+      });
       $("#pickerSearch").addEventListener("input", renderPicker);
       $("#pickerGrid").addEventListener("click", event => {
         const button = event.target.closest("[data-picker-number]");
@@ -1620,6 +1897,7 @@ service cloud.firestore {
         if (action.dataset.action === "delete-buyer") deleteBuyer(buyer);
       });
       $("#buyerSearch").addEventListener("input", renderBuyers);
+      $("#paymentFilter").addEventListener("change", renderBuyers);
       $("#numbersTab").addEventListener("click", () => setActiveTab("numbers"));
       $("#buyersTab").addEventListener("click", () => setActiveTab("buyers"));
 
@@ -1658,6 +1936,7 @@ service cloud.firestore {
           rifas: state.raffles.map(item => ({
             id: item.id, nome: item.nome, premio: item.premio,
             total: Number(item.quantidadeNumeros || 0),
+            valorPorNumero: getRaffleUnitValueCents(item) / 100,
             escolhidos: Object.keys(item.numerosOcupados || {}).length,
             sorteada: Boolean(item.vencedor)
           }))
@@ -1673,21 +1952,24 @@ service cloud.firestore {
             nome: { type: "string", minLength: 1, maxLength: 100 },
             premio: { type: "string", minLength: 1, maxLength: 180 },
             quantidade: { type: "integer", minimum: 1, maximum: 10000 },
+            valorNumero: { type: "number", exclusiveMinimum: 0 },
             tipoSorteio: { type: "string", enum: ["date", "soldout"] },
             dataSorteio: { type: ["string", "null"] }
           },
-          required: ["nome", "premio", "quantidade", "tipoSorteio"],
+          required: ["nome", "premio", "quantidade", "valorNumero", "tipoSorteio"],
           additionalProperties: false
         },
         annotations: { readOnlyHint: false, untrustedContentHint: false },
         execute: async input => {
           if (!input?.nome?.trim() || !input?.premio?.trim()) throw new Error("Nome e prêmio são obrigatórios.");
           if (!Number.isInteger(input.quantidade) || input.quantidade < 1 || input.quantidade > 10000) throw new Error("Quantidade inválida.");
+          if (!Number.isFinite(input.valorNumero) || input.valorNumero <= 0) throw new Error("Valor por número inválido.");
           if (input.tipoSorteio === "date" && !input.dataSorteio) throw new Error("A data é obrigatória para sorteio por data.");
           const id = await createRaffleRecord({
             nome: input.nome.trim(), premio: input.premio.trim(), tipoSorteio: input.tipoSorteio,
             dataSorteio: input.tipoSorteio === "date" ? new Date(input.dataSorteio).toISOString() : null,
-            quantidadeNumeros: input.quantidade
+            quantidadeNumeros: input.quantidade,
+            valorNumeroCentavos: Math.round(input.valorNumero * 100)
           });
           return { id, status: "criada" };
         }
@@ -1702,16 +1984,24 @@ service cloud.firestore {
             rifaId: { type: "string", minLength: 1 },
             nome: { type: "string", minLength: 1, maxLength: 100 },
             whatsapp: { type: "string", minLength: 10 },
-            numeros: { type: "array", minItems: 1, uniqueItems: true, items: { type: "integer", minimum: 1 } }
+            numeros: { type: "array", minItems: 1, uniqueItems: true, items: { type: "integer", minimum: 1 } },
+            valorTotal: { type: "number", minimum: 0 },
+            formaPagamento: { type: "string", enum: ["pix", "dinheiro", "cartao", "transferencia", "outro", "a_definir"] },
+            statusPagamento: { type: "string", enum: ["pago", "pendente"] }
           },
-          required: ["rifaId", "nome", "whatsapp", "numeros"],
+          required: ["rifaId", "nome", "whatsapp", "numeros", "valorTotal", "formaPagamento", "statusPagamento"],
           additionalProperties: false
         },
         annotations: { readOnlyHint: false, untrustedContentHint: true },
         execute: async input => {
           const phone = digits(input?.whatsapp || "");
           if (!input?.rifaId || !input?.nome?.trim() || phone.length < 10) throw new Error("Dados do comprador inválidos.");
-          const id = await saveBuyerRecord({ raffleId: input.rifaId, nome: input.nome.trim(), whatsapp: phone, numeros: input.numeros || [] });
+          if (!Number.isFinite(input.valorTotal) || input.valorTotal < 0) throw new Error("Valor total inválido.");
+          const id = await saveBuyerRecord({
+            raffleId: input.rifaId, nome: input.nome.trim(), whatsapp: phone, numeros: input.numeros || [],
+            valorTotalCentavos: Math.round(input.valorTotal * 100),
+            formaPagamento: input.formaPagamento, statusPagamento: input.statusPagamento
+          });
           return { id, status: "cadastrado", numeros: input.numeros };
         }
       });
