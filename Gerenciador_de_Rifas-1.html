@@ -1,0 +1,1725 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17213b">
+  <meta name="description" content="Gerenciador pessoal de rifas, compradores, números e sorteios.">
+  <title>Gerenciador de Rifas</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%236c5ce7'/%3E%3Cpath d='M17 19h30v9a5 5 0 0 0 0 10v9H17v-9a5 5 0 0 0 0-10z' fill='white'/%3E%3Cpath d='M32 23v18' stroke='%236c5ce7' stroke-width='3' stroke-dasharray='3 3'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18213a;
+      --muted: #667085;
+      --soft: #f4f6fb;
+      --surface: #ffffff;
+      --line: #e3e7ef;
+      --primary: #6c5ce7;
+      --primary-dark: #5142c7;
+      --primary-soft: #eeecff;
+      --sidebar: #17213b;
+      --sidebar-soft: #25304d;
+      --success: #159b72;
+      --success-soft: #e8f8f2;
+      --warning: #f4a62a;
+      --warning-soft: #fff5df;
+      --danger: #d6455d;
+      --danger-soft: #fff0f2;
+      --shadow: 0 14px 36px rgba(23, 33, 59, .10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--soft); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      background: var(--soft);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { border: 0; }
+    button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; }
+    [hidden] { display: none !important; }
+
+    .app-shell { min-height: 100vh; min-height: 100dvh; display: grid; grid-template-columns: 318px minmax(0, 1fr); }
+    .sidebar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 10% -10%, rgba(108, 92, 231, .42), transparent 34%),
+        var(--sidebar);
+      color: #fff;
+    }
+    .sidebar-head { padding: 24px 22px 16px; }
+    .brand-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      background: var(--primary);
+      box-shadow: 0 10px 24px rgba(108, 92, 231, .34);
+    }
+    .brand h1 { margin: 0; font-size: 1.05rem; line-height: 1.15; letter-spacing: -.02em; }
+    .brand small { display: block; margin-top: 3px; color: #aeb7cc; font-size: .78rem; }
+    .icon-btn {
+      width: 40px;
+      height: 40px;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 12px;
+      background: transparent;
+      color: currentColor;
+      cursor: pointer;
+      transition: background .18s ease, transform .18s ease;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,.10); }
+    .icon-btn:active { transform: scale(.96); }
+    .new-raffle-btn {
+      width: 100%;
+      min-height: 48px;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border-radius: 14px;
+      background: #fff;
+      color: var(--sidebar);
+      font-weight: 750;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,.13);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .new-raffle-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 28px rgba(0,0,0,.17); }
+    .sidebar-label {
+      margin: 5px 22px 10px;
+      color: #aeb7cc;
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .raffle-list { flex: 1; overflow-y: auto; padding: 0 12px 18px; scrollbar-width: thin; scrollbar-color: #3b4663 transparent; }
+    .raffle-card {
+      width: 100%;
+      margin-bottom: 8px;
+      padding: 15px;
+      border: 1px solid transparent;
+      border-radius: 15px;
+      background: transparent;
+      color: #fff;
+      text-align: left;
+      cursor: pointer;
+      transition: background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .raffle-card:hover { background: rgba(255,255,255,.06); }
+    .raffle-card.is-active { background: var(--sidebar-soft); border-color: rgba(255,255,255,.11); box-shadow: 0 10px 22px rgba(0,0,0,.10); }
+    .raffle-card-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .raffle-card-title strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; }
+    .raffle-card-meta { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; color: #b9c1d3; font-size: .78rem; }
+    .mini-progress { height: 5px; margin-top: 10px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,.1); }
+    .mini-progress > span { display: block; height: 100%; border-radius: inherit; background: #8d80ff; }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      color: #cbd2df;
+      font-size: .7rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .status-chip.done { background: rgba(244,166,42,.15); color: #ffd283; }
+    .sidebar-empty { padding: 24px 12px; color: #aeb7cc; text-align: center; font-size: .88rem; }
+    .sidebar-footer { padding: 14px 20px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(255,255,255,.08); }
+    .connection {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #b9c1d3;
+      font-size: .78rem;
+    }
+    .connection-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--warning); box-shadow: 0 0 0 4px rgba(244,166,42,.10); }
+    .connection.connected .connection-dot { background: #45d6a2; box-shadow: 0 0 0 4px rgba(69,214,162,.10); }
+    .connection.error .connection-dot { background: #ff7087; box-shadow: 0 0 0 4px rgba(255,112,135,.10); }
+
+    .workspace { min-width: 0; padding: 32px clamp(22px, 4vw, 56px) 56px; }
+    .mobile-bar { display: none; }
+    .empty-state {
+      min-height: calc(100vh - 88px);
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+    .empty-card { width: min(470px, 100%); padding: 46px 30px; }
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 25px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      transform: rotate(-5deg);
+    }
+    .empty-card h2 { margin: 0 0 8px; font-size: clamp(1.55rem, 3vw, 2rem); letter-spacing: -.04em; }
+    .empty-card p { margin: 0 auto 24px; max-width: 380px; color: var(--muted); }
+    .primary-btn, .secondary-btn, .danger-btn, .draw-btn, .ghost-btn {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 17px;
+      border-radius: 12px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease, box-shadow .18s ease, opacity .18s ease;
+    }
+    .primary-btn { background: var(--primary); color: #fff; box-shadow: 0 9px 18px rgba(108,92,231,.20); }
+    .primary-btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .secondary-btn { border: 1px solid var(--line); background: #fff; color: var(--ink); }
+    .secondary-btn:hover, .ghost-btn:hover { background: #f8f9fc; }
+    .ghost-btn { background: transparent; color: var(--muted); }
+    .danger-btn { background: var(--danger); color: #fff; }
+    .draw-btn { background: var(--warning); color: #432b00; box-shadow: 0 9px 18px rgba(244,166,42,.20); }
+    .draw-btn:hover { background: #eda01e; transform: translateY(-1px); }
+    button:disabled { opacity: .5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible {
+      outline: 3px solid rgba(108,92,231,.28);
+      outline-offset: 2px;
+    }
+
+    .detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .eyebrow { margin: 0 0 5px; color: var(--primary); font-size: .76rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; }
+    .detail-title { margin: 0; font-size: clamp(1.7rem, 3.3vw, 2.6rem); line-height: 1.08; letter-spacing: -.045em; overflow-wrap: anywhere; }
+    .detail-prize { margin: 9px 0 0; color: var(--muted); font-size: 1rem; }
+    .head-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 9px; }
+    .more-menu-wrap { position: relative; }
+    .more-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 15;
+      width: 190px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+    .more-menu button { width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 11px; border-radius: 9px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+    .more-menu button:hover { background: var(--soft); }
+    .more-menu button.danger-text { color: var(--danger); }
+
+    .winner-banner {
+      position: relative;
+      margin-top: 24px;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 18px;
+      padding: 20px 22px;
+      border: 1px solid #f2d08b;
+      border-radius: var(--radius);
+      background: linear-gradient(110deg, #fff7e5, #fffdf7 60%, #fff3d4);
+    }
+    .winner-banner::after { content: ""; position: absolute; width: 160px; height: 160px; right: -60px; top: -90px; border: 22px solid rgba(244,166,42,.10); border-radius: 50%; }
+    .winner-number { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 18px; background: var(--warning); color: #432b00; font-size: 1.35rem; font-weight: 900; box-shadow: 0 12px 24px rgba(244,166,42,.22); }
+    .winner-copy { min-width: 0; }
+    .winner-copy small { display: block; color: #8c661e; font-size: .75rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+    .winner-copy strong { display: block; margin-top: 2px; font-size: 1.13rem; overflow-wrap: anywhere; }
+    .winner-copy span { display: block; color: #715c33; font-size: .9rem; }
+    .winner-banner .secondary-btn { position: relative; z-index: 1; border-color: #edd49e; background: rgba(255,255,255,.7); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 24px; }
+    .stat-card { min-width: 0; padding: 18px 19px; border: 1px solid var(--line); border-radius: 16px; background: #fff; box-shadow: 0 6px 20px rgba(23,33,59,.04); }
+    .stat-label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: .82rem; font-weight: 700; }
+    .stat-value { display: block; margin-top: 8px; font-size: 1.45rem; line-height: 1.1; font-weight: 850; letter-spacing: -.03em; overflow-wrap: anywhere; }
+    .stat-value.small { font-size: 1rem; line-height: 1.35; letter-spacing: -.01em; }
+    .main-progress { height: 7px; margin-top: 12px; overflow: hidden; border-radius: 999px; background: #edf0f5; }
+    .main-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--primary), #8b7ff5); transition: width .35s ease; }
+
+    .content-card { margin-top: 24px; border: 1px solid var(--line); border-radius: var(--radius); background: #fff; box-shadow: 0 10px 28px rgba(23,33,59,.05); }
+    .tabs { display: flex; gap: 4px; padding: 8px; border-bottom: 1px solid var(--line); }
+    .tab-btn { min-height: 42px; display: inline-flex; align-items: center; gap: 8px; padding: 0 15px; border-radius: 11px; background: transparent; color: var(--muted); font-weight: 750; cursor: pointer; }
+    .tab-btn.is-active { background: var(--primary-soft); color: var(--primary-dark); }
+    .tab-count { min-width: 22px; height: 22px; display: inline-grid; place-items: center; padding: 0 6px; border-radius: 999px; background: rgba(108,92,231,.1); font-size: .72rem; }
+    .panel { padding: 20px; }
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+    .toolbar-group { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .filter-pill { min-height: 38px; padding: 0 13px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font-size: .85rem; font-weight: 750; cursor: pointer; }
+    .filter-pill.is-active { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .search-box { position: relative; min-width: min(290px, 100%); }
+    .search-box svg { position: absolute; left: 12px; top: 50%; color: #98a2b3; transform: translateY(-50%); pointer-events: none; }
+    .search-box input { width: 100%; height: 42px; padding: 0 13px 0 39px; border: 1px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); }
+    .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 15px; margin-bottom: 15px; color: var(--muted); font-size: .79rem; }
+    .legend-item { display: inline-flex; align-items: center; gap: 7px; }
+    .legend-swatch { width: 14px; height: 14px; border: 1px solid #d8ddea; border-radius: 4px; background: #fff; }
+    .legend-swatch.chosen { border-color: var(--primary); background: var(--primary); }
+    .legend-swatch.winner { border-color: var(--warning); background: var(--warning); }
+    .number-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 8px; }
+    .number-cell {
+      position: relative;
+      min-width: 0;
+      aspect-ratio: 1.18;
+      display: grid;
+      place-items: center;
+      border: 1px solid #dce1ea;
+      border-radius: 11px;
+      background: #fff;
+      color: var(--ink);
+      font-size: .86rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .14s ease, border-color .14s ease, background .14s ease;
+    }
+    .number-cell:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .number-cell.chosen { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .number-cell.winner { border-color: var(--warning); background: var(--warning); color: #402900; box-shadow: 0 0 0 3px var(--warning-soft); }
+    .number-cell.winner::after { content: "★"; position: absolute; right: 4px; top: 2px; font-size: .56rem; }
+    .numbers-footer { display: flex; justify-content: center; padding-top: 20px; }
+    .results-note { margin: 14px 0 0; color: var(--muted); text-align: center; font-size: .82rem; }
+
+    .buyers-list { display: grid; gap: 10px; }
+    .buyer-row {
+      display: grid;
+      grid-template-columns: minmax(170px, 1.2fr) minmax(145px, .9fr) minmax(220px, 1.8fr) auto;
+      align-items: center;
+      gap: 16px;
+      padding: 15px 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+    .buyer-name { min-width: 0; }
+    .buyer-name strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .buyer-name small { color: var(--muted); }
+    .phone-link { color: var(--success); font-size: .9rem; font-weight: 700; text-decoration: none; }
+    .phone-link:hover { text-decoration: underline; }
+    .number-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .number-chip { min-width: 32px; padding: 4px 7px; border-radius: 7px; background: var(--primary-soft); color: var(--primary-dark); font-size: .75rem; font-weight: 800; text-align: center; }
+    .row-actions { display: flex; gap: 3px; }
+    .row-actions .icon-btn { color: var(--muted); }
+    .row-actions .icon-btn:hover { background: var(--soft); color: var(--ink); }
+    .row-actions .icon-btn.danger-text:hover { background: var(--danger-soft); color: var(--danger); }
+    .list-empty { padding: 45px 20px; color: var(--muted); text-align: center; }
+    .list-empty svg { margin-bottom: 10px; color: #a6afc0; }
+    .list-empty strong { display: block; color: var(--ink); }
+
+    .drawer-backdrop { display: none; position: fixed; inset: 0; z-index: 19; background: rgba(10,15,28,.46); backdrop-filter: blur(2px); }
+    .drawer-backdrop.show { display: block; }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(13,20,36,.58);
+      backdrop-filter: blur(4px);
+      animation: fadeIn .16s ease;
+    }
+    .modal {
+      width: min(580px, 100%);
+      max-height: min(88vh, 850px);
+      overflow: auto;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 28px 80px rgba(10,18,35,.28);
+      animation: riseIn .2s ease;
+    }
+    .modal.wide { width: min(760px, 100%); }
+    .modal.compact { width: min(440px, 100%); }
+    .modal-head { position: sticky; top: 0; z-index: 3; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 22px 24px 16px; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(10px); }
+    .modal-head h2 { margin: 0; font-size: 1.28rem; letter-spacing: -.025em; }
+    .modal-head p { margin: 4px 0 0; color: var(--muted); font-size: .85rem; }
+    .modal-head .icon-btn:hover { background: var(--soft); }
+    .modal-body { padding: 22px 24px; }
+    .modal-foot { position: sticky; bottom: 0; z-index: 3; display: flex; justify-content: flex-end; gap: 9px; padding: 16px 24px calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(255,255,255,.96); backdrop-filter: blur(10px); }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
+    .field { min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    .field label, .field-label { display: block; margin-bottom: 7px; color: #344054; font-size: .84rem; font-weight: 750; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      min-height: 45px;
+      padding: 10px 12px;
+      border: 1px solid #d7dce6;
+      border-radius: 11px;
+      background: #fff;
+      color: var(--ink);
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(108,92,231,.1); outline: 0; }
+    .field-hint { display: block; margin-top: 6px; color: var(--muted); font-size: .75rem; }
+    .choice-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .choice-card { position: relative; display: block; cursor: pointer; }
+    .choice-card input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice-card span { min-height: 66px; display: flex; flex-direction: column; justify-content: center; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); font-size: .86rem; font-weight: 750; }
+    .choice-card small { color: var(--muted); font-weight: 500; }
+    .choice-card input:checked + span { border-color: var(--primary); background: var(--primary-soft); color: var(--primary-dark); box-shadow: 0 0 0 1px var(--primary); }
+    .choice-card input:focus-visible + span { outline: 3px solid rgba(108,92,231,.25); outline-offset: 2px; }
+    .selected-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 16px 0 12px; padding: 12px 14px; border-radius: 12px; background: var(--primary-soft); color: var(--primary-dark); }
+    .selected-summary strong { font-size: .9rem; }
+    .selected-numbers { min-width: 0; color: var(--primary-dark); font-size: .82rem; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .picker-toolbar { display: flex; gap: 10px; }
+    .picker-toolbar .search-box { flex: 1; }
+    .picker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px,1fr)); gap: 7px; max-height: 290px; margin-top: 12px; padding: 4px; overflow-y: auto; }
+    .picker-number { min-height: 45px; border: 1px solid #dce1ea; border-radius: 10px; background: #fff; color: var(--ink); font-size: .8rem; font-weight: 800; cursor: pointer; }
+    .picker-number:hover:not(:disabled) { border-color: var(--primary); }
+    .picker-number.is-selected { border-color: var(--primary); background: var(--primary); color: #fff; }
+    .picker-number:disabled { background: #f0f2f6; color: #a0a8b7; opacity: 1; text-decoration: line-through; }
+    .picker-note { margin: 10px 0 0; color: var(--muted); font-size: .75rem; }
+    .confirm-icon { width: 56px; height: 56px; display: grid; place-items: center; margin-bottom: 16px; border-radius: 17px; background: var(--danger-soft); color: var(--danger); }
+    .confirm-copy h2 { margin: 0 0 8px; font-size: 1.3rem; }
+    .confirm-copy p { margin: 0; color: var(--muted); }
+    .rules-box { margin-top: 16px; padding: 14px; overflow-x: auto; border-radius: 12px; background: #111827; color: #e5e7eb; font: .78rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre; }
+    .warning-note { display: flex; gap: 10px; padding: 13px 14px; border: 1px solid #f3d69c; border-radius: 12px; background: var(--warning-soft); color: #735113; font-size: .84rem; }
+
+    .draw-modal { overflow: hidden; text-align: center; }
+    .draw-stage { position: relative; min-height: 430px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 35px 24px; background: radial-gradient(circle at 50% 22%, #7668ed 0, #5142c7 38%, #251f69 100%); color: #fff; }
+    .draw-stage::before, .draw-stage::after { content: ""; position: absolute; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; }
+    .draw-stage::before { width: 330px; height: 330px; }
+    .draw-stage::after { width: 250px; height: 250px; }
+    .draw-close { position: absolute; right: 16px; top: 16px; z-index: 4; color: #fff; }
+    .draw-kicker { position: relative; z-index: 2; margin-bottom: 14px; color: #d7d1ff; font-size: .78rem; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+    .draw-number { position: relative; z-index: 2; min-width: 150px; height: 150px; display: grid; place-items: center; padding: 0 20px; border: 2px solid rgba(255,255,255,.75); border-radius: 42px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 30px rgba(255,255,255,.08), 0 24px 60px rgba(0,0,0,.25); font-size: clamp(2.5rem, 10vw, 4.3rem); font-weight: 950; letter-spacing: -.05em; backdrop-filter: blur(10px); }
+    .draw-number.spinning { animation: pulseTicket .48s ease-in-out infinite alternate; }
+    .draw-countdown { position: relative; z-index: 2; margin-top: 20px; color: #d7d1ff; font-weight: 700; }
+    .winner-reveal { position: relative; z-index: 2; margin-top: 20px; animation: riseIn .35s ease; }
+    .winner-reveal small { display: block; color: #d7d1ff; font-size: .76rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .winner-reveal strong { display: block; margin-top: 3px; font-size: 1.45rem; }
+    .winner-reveal span { color: #e8e5ff; }
+    .draw-actions { position: relative; z-index: 2; display: flex; justify-content: center; gap: 8px; margin-top: 21px; }
+    .draw-actions .secondary-btn { border-color: rgba(255,255,255,.3); background: rgba(255,255,255,.13); color: #fff; }
+    .draw-actions .primary-btn { background: #fff; color: var(--primary-dark); box-shadow: none; }
+
+    .toast-stack { position: fixed; right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 200; display: grid; gap: 9px; width: min(380px, calc(100vw - 36px)); pointer-events: none; }
+    .toast { display: flex; align-items: flex-start; gap: 10px; padding: 13px 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 13px; background: #17213b; color: #fff; box-shadow: 0 16px 40px rgba(15,23,42,.24); animation: toastIn .22s ease; pointer-events: auto; }
+    .toast.success svg { color: #53dcb0; }
+    .toast.error svg { color: #ff7e94; }
+    .toast span { flex: 1; font-size: .88rem; }
+    .toast button { padding: 0; background: transparent; color: #c6cede; cursor: pointer; }
+    .saving-overlay { position: fixed; inset: 0; z-index: 180; display: grid; place-items: center; background: rgba(255,255,255,.55); backdrop-filter: blur(2px); }
+    .saving-pill { display: flex; align-items: center; gap: 10px; padding: 12px 17px; border-radius: 999px; background: var(--sidebar); color: #fff; box-shadow: var(--shadow); font-size: .88rem; font-weight: 750; }
+    .spinner { width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .75s linear infinite; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; } }
+    @keyframes riseIn { from { opacity: 0; transform: translateY(9px) scale(.985); } }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(10px); } }
+    @keyframes pulseTicket { to { transform: scale(1.04); background: rgba(255,255,255,.19); } }
+
+    @media (max-width: 1060px) {
+      .app-shell { grid-template-columns: 280px minmax(0, 1fr); }
+      .workspace { padding-inline: 24px; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .buyer-row { grid-template-columns: minmax(160px,1fr) minmax(140px,.8fr) minmax(180px,1fr) auto; gap: 11px; }
+    }
+    @media (max-width: 780px) {
+      .app-shell { display: block; }
+      .sidebar { position: fixed; left: 0; top: 0; width: min(320px, 86vw); transform: translateX(-105%); transition: transform .24s ease; box-shadow: 22px 0 50px rgba(10,16,30,.25); }
+      .sidebar.open { transform: translateX(0); }
+      .workspace { padding: 0 16px 38px; }
+      .mobile-bar { position: sticky; top: 0; z-index: 18; display: flex; align-items: center; justify-content: space-between; min-height: 64px; margin: 0 -16px 22px; padding: 8px 16px; border-bottom: 1px solid rgba(227,231,239,.9); background: rgba(244,246,251,.92); backdrop-filter: blur(12px); }
+      .mobile-brand { display: flex; align-items: center; gap: 9px; font-weight: 850; }
+      .mobile-brand .brand-mark { width: 36px; height: 36px; border-radius: 11px; color: #fff; }
+      .mobile-bar .icon-btn:hover { background: #e9ecf3; }
+      .empty-state { min-height: calc(100vh - 110px); }
+      .detail-head { display: block; }
+      .head-actions { justify-content: flex-start; margin-top: 18px; }
+      .head-actions .draw-btn { flex: 1; }
+      .winner-banner { grid-template-columns: auto minmax(0,1fr); }
+      .winner-banner .secondary-btn { grid-column: 1 / -1; width: 100%; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      .search-box { width: 100%; min-width: 0; }
+      .buyer-row { grid-template-columns: minmax(0,1fr) auto; gap: 11px; }
+      .buyer-name { grid-column: 1; }
+      .phone-cell { grid-column: 1; }
+      .buyer-numbers { grid-column: 1 / -1; }
+      .row-actions { grid-column: 2; grid-row: 1 / span 2; align-self: start; }
+    }
+    @media (max-width: 520px) {
+      .workspace { padding-inline: 12px; }
+      .mobile-bar { margin-inline: -12px; padding-inline: 12px; }
+      .detail-title { font-size: 1.72rem; }
+      .stats-grid { gap: 9px; }
+      .stat-card { padding: 14px; }
+      .stat-value { font-size: 1.22rem; }
+      .stat-value.small { font-size: .9rem; }
+      .content-card { margin-inline: -2px; }
+      .panel { padding: 15px 12px 18px; }
+      .tabs { overflow-x: auto; }
+      .tab-btn { flex: 1; justify-content: center; padding-inline: 10px; white-space: nowrap; }
+      .number-grid { grid-template-columns: repeat(5, minmax(0,1fr)); gap: 6px; }
+      .number-cell { border-radius: 9px; font-size: .75rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .choice-grid { grid-template-columns: 1fr; }
+      .modal-backdrop { align-items: end; padding: 0; }
+      .modal { width: 100%; max-height: 94vh; border-radius: 22px 22px 0 0; }
+      .modal-head, .modal-body { padding-left: 18px; padding-right: 18px; }
+      .modal-foot { padding-left: 18px; padding-right: 18px; }
+      .modal-foot > button { flex: 1; }
+      .selected-summary { align-items: flex-start; flex-direction: column; }
+      .selected-numbers { width: 100%; text-align: left; }
+      .picker-grid { grid-template-columns: repeat(5,minmax(0,1fr)); }
+      .draw-stage { min-height: 470px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar" aria-label="Rifas cadastradas">
+      <div class="sidebar-head">
+        <div class="brand-row">
+          <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16v4a2.5 2.5 0 0 0 0 5v4H4v-4a2.5 2.5 0 0 0 0-5v-4Z" fill="currentColor"/><path d="M12 7.5v9" stroke="#6c5ce7" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="2.2 2.2"/></svg>
+            </div>
+            <div><h1>Gerenciador de Rifas</h1><small>Painel pessoal</small></div>
+          </div>
+          <button class="icon-btn" id="openSetupBtn" type="button" aria-label="Ajuda e configuração" title="Ajuda e configuração">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 3.65 2.05c-.83.5-1.35.94-1.35 1.95M12 17h.01" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <button class="new-raffle-btn" id="newRaffleBtn" type="button">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          Nova rifa
+        </button>
+      </div>
+      <p class="sidebar-label">Minhas rifas</p>
+      <div class="raffle-list" id="raffleList" aria-live="polite">
+        <div class="sidebar-empty">Carregando suas rifas...</div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="connection" id="connectionStatus">
+          <span class="connection-dot"></span><span>Conectando ao banco...</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+    <main class="workspace">
+      <div class="mobile-bar">
+        <div class="mobile-brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M4 5.5h16v4a2.5 2.5 0 0 0 0 5v4H4v-4a2.5 2.5 0 0 0 0-5v-4Z" fill="currentColor"/><path d="M12 7.5v9" stroke="#6c5ce7" stroke-width="1.7" stroke-linecap="round" stroke-dasharray="2.2 2.2"/></svg>
+          </div>
+          Rifas
+        </div>
+        <button class="icon-btn" id="menuBtn" type="button" aria-label="Abrir lista de rifas">
+          <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <section class="empty-state" id="emptyState">
+        <div class="empty-card">
+          <div class="empty-icon" aria-hidden="true">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 5.5h17v4a2.5 2.5 0 0 0 0 5v4h-17v-4a2.5 2.5 0 0 0 0-5v-4Z"/><path d="M12 7.5v9" stroke-linecap="round" stroke-dasharray="2 2"/></svg>
+          </div>
+          <h2>Sua primeira rifa começa aqui</h2>
+          <p>Cadastre o prêmio e a quantidade de números. Depois, registre os compradores e acompanhe tudo em tempo real.</p>
+          <button class="primary-btn" id="emptyNewRaffleBtn" type="button">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+            Criar uma rifa
+          </button>
+        </div>
+      </section>
+
+      <section id="detailView" hidden>
+        <header class="detail-head">
+          <div>
+            <p class="eyebrow" id="raffleStatusText">Rifa ativa</p>
+            <h2 class="detail-title" id="raffleTitle">—</h2>
+            <p class="detail-prize" id="rafflePrize">—</p>
+          </div>
+          <div class="head-actions">
+            <button class="secondary-btn" id="addBuyerBtn" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19a6 6 0 0 0-12 0M9 13a4 4 0 1 0 0-8M18 8v6M15 11h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Cadastrar comprador
+            </button>
+            <button class="draw-btn" id="drawBtn" type="button">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 1.5 4.3L18 9l-4.5 1.7L12 15l-1.5-4.3L6 9l4.5-1.7L12 3ZM18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Sortear
+            </button>
+            <div class="more-menu-wrap">
+              <button class="secondary-btn" id="moreBtn" type="button" aria-label="Mais opções" aria-expanded="false">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+              </button>
+              <div class="more-menu" id="moreMenu" hidden>
+                <button type="button" id="editRaffleBtn">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 5 5 5M4 20l4.2-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Editar rifa
+                </button>
+                <button type="button" id="deleteRaffleBtn" class="danger-text">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Excluir rifa
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <div class="winner-banner" id="winnerBanner" hidden>
+          <div class="winner-number" id="winnerBannerNumber">—</div>
+          <div class="winner-copy">
+            <small>Ganhador sorteado</small>
+            <strong id="winnerBannerName">—</strong>
+            <span id="winnerBannerPhone">—</span>
+          </div>
+          <a class="secondary-btn" id="winnerWhatsAppLink" href="#" target="_blank" rel="noopener">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11.6a8 8 0 0 1-11.8 7L4 20l1.4-4.1A8 8 0 1 1 20 11.6Z"/><path d="M8.5 8.5c.7 3 2 4.4 5 5" stroke-linecap="round"/></svg>
+            Chamar no WhatsApp
+          </a>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-label">Total de números</span>
+            <strong class="stat-value" id="totalNumbers">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Escolhidos</span>
+            <strong class="stat-value" id="soldNumbers">0</strong>
+            <div class="main-progress"><span id="salesProgress" style="width:0%"></span></div>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Disponíveis</span>
+            <strong class="stat-value" id="availableNumbers">0</strong>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">Quando sortear</span>
+            <strong class="stat-value small" id="drawRule">—</strong>
+          </article>
+        </div>
+
+        <section class="content-card">
+          <div class="tabs" role="tablist" aria-label="Conteúdo da rifa">
+            <button class="tab-btn is-active" id="numbersTab" type="button" role="tab" aria-selected="true" aria-controls="numbersPanel">
+              Números <span class="tab-count" id="numbersTabCount">0</span>
+            </button>
+            <button class="tab-btn" id="buyersTab" type="button" role="tab" aria-selected="false" aria-controls="buyersPanel">
+              Compradores <span class="tab-count" id="buyersTabCount">0</span>
+            </button>
+          </div>
+
+          <div class="panel" id="numbersPanel" role="tabpanel" aria-labelledby="numbersTab">
+            <div class="toolbar">
+              <div class="toolbar-group" id="numberFilters" aria-label="Filtrar números">
+                <button class="filter-pill is-active" type="button" data-filter="all">Todos</button>
+                <button class="filter-pill" type="button" data-filter="available">Disponíveis</button>
+                <button class="filter-pill" type="button" data-filter="chosen">Escolhidos</button>
+              </div>
+              <label class="search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
+                <input id="numberSearch" type="search" inputmode="numeric" placeholder="Buscar número" aria-label="Buscar número">
+              </label>
+            </div>
+            <div class="legend" aria-label="Legenda">
+              <span class="legend-item"><span class="legend-swatch"></span> Disponível</span>
+              <span class="legend-item"><span class="legend-swatch chosen"></span> Escolhido</span>
+              <span class="legend-item"><span class="legend-swatch winner"></span> Ganhador</span>
+            </div>
+            <div class="number-grid" id="numberGrid"></div>
+            <div class="numbers-footer" id="numbersFooter" hidden>
+              <button class="secondary-btn" id="loadMoreNumbers" type="button">Mostrar mais números</button>
+            </div>
+            <p class="results-note" id="numberResultsNote"></p>
+          </div>
+
+          <div class="panel" id="buyersPanel" role="tabpanel" aria-labelledby="buyersTab" hidden>
+            <div class="toolbar">
+              <label class="search-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
+                <input id="buyerSearch" type="search" placeholder="Buscar nome, telefone ou número" aria-label="Buscar comprador">
+              </label>
+              <button class="primary-btn" id="addBuyerPanelBtn" type="button">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19a6 6 0 0 0-12 0M9 13a4 4 0 1 0 0-8M18 8v6M15 11h6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Novo comprador
+              </button>
+            </div>
+            <div class="buyers-list" id="buyersList"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="raffleModal" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="raffleModalTitle">
+      <header class="modal-head">
+        <div><h2 id="raffleModalTitle">Nova rifa</h2><p>Defina as informações principais do sorteio.</p></div>
+        <button class="icon-btn modal-close" type="button" data-close="raffleModal" aria-label="Fechar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <form id="raffleForm">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field full">
+              <label for="raffleName">Nome da rifa</label>
+              <input id="raffleName" name="name" maxlength="100" placeholder="Ex.: Rifa de aniversário" required>
+            </div>
+            <div class="field full">
+              <label for="rafflePrize">Prêmio</label>
+              <input id="rafflePrizeInput" name="prize" maxlength="180" placeholder="Ex.: Smartphone Samsung Galaxy" required>
+            </div>
+            <div class="field full">
+              <span class="field-label">Realizar o sorteio</span>
+              <div class="choice-grid">
+                <label class="choice-card">
+                  <input type="radio" name="drawMode" value="date" checked>
+                  <span>Em uma data específica<small>Escolha dia e horário</small></span>
+                </label>
+                <label class="choice-card">
+                  <input type="radio" name="drawMode" value="soldout">
+                  <span>Ao esgotar os números<small>Sem data definida</small></span>
+                </label>
+              </div>
+            </div>
+            <div class="field" id="drawDateField">
+              <label for="raffleDate">Data do sorteio</label>
+              <input id="raffleDate" name="drawDate" type="datetime-local" required>
+            </div>
+            <div class="field">
+              <label for="raffleTotal">Quantidade de números</label>
+              <input id="raffleTotal" name="total" type="number" min="1" max="10000" step="1" value="100" required>
+              <small class="field-hint">De 1 a 10.000 números.</small>
+            </div>
+          </div>
+        </div>
+        <footer class="modal-foot">
+          <button class="secondary-btn" type="button" data-close="raffleModal">Cancelar</button>
+          <button class="primary-btn" type="submit" id="saveRaffleBtn">Salvar rifa</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="buyerModal" hidden>
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="buyerModalTitle">
+      <header class="modal-head">
+        <div><h2 id="buyerModalTitle">Novo comprador</h2><p>Cadastre os dados e selecione um ou mais números.</p></div>
+        <button class="icon-btn" type="button" data-close="buyerModal" aria-label="Fechar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <form id="buyerForm">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="field">
+              <label for="buyerName">Nome do comprador</label>
+              <input id="buyerName" name="buyerName" maxlength="100" autocomplete="name" placeholder="Nome completo" required>
+            </div>
+            <div class="field">
+              <label for="buyerPhone">WhatsApp</label>
+              <input id="buyerPhone" name="buyerPhone" type="tel" maxlength="19" autocomplete="tel" placeholder="(88) 99999-9999" required>
+            </div>
+          </div>
+          <div class="selected-summary">
+            <strong id="selectedCount">Nenhum número selecionado</strong>
+            <span class="selected-numbers" id="selectedNumbers">Selecione abaixo</span>
+          </div>
+          <div class="picker-toolbar">
+            <label class="search-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4" stroke-linecap="round"/></svg>
+              <input id="pickerSearch" type="search" inputmode="numeric" placeholder="Buscar número" aria-label="Buscar número para selecionar">
+            </label>
+          </div>
+          <div class="picker-grid" id="pickerGrid"></div>
+          <p class="picker-note" id="pickerNote">Números riscados já pertencem a outro comprador.</p>
+        </div>
+        <footer class="modal-foot">
+          <button class="secondary-btn" type="button" data-close="buyerModal">Cancelar</button>
+          <button class="primary-btn" type="submit" id="saveBuyerBtn">Salvar comprador</button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="confirmModal" hidden>
+    <section class="modal compact" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+      <div class="modal-body confirm-copy">
+        <div class="confirm-icon" id="confirmIcon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 4.7 3 18a1.3 1.3 0 0 0 1.1 2h15.8A1.3 1.3 0 0 0 21 18L13.7 4.7a2 2 0 0 0-3.4 0Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h2 id="confirmTitle">Confirmar ação</h2>
+        <p id="confirmMessage">Tem certeza?</p>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary-btn" type="button" id="confirmCancel">Cancelar</button>
+        <button class="danger-btn" type="button" id="confirmAction">Confirmar</button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="setupModal" hidden>
+    <section class="modal wide" role="dialog" aria-modal="true" aria-labelledby="setupTitle">
+      <header class="modal-head">
+        <div><h2 id="setupTitle">Configuração do banco</h2><p>O aplicativo usa o Cloud Firestore do projeto informado.</p></div>
+        <button class="icon-btn" type="button" data-close="setupModal" aria-label="Fechar">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <p style="margin-top:0">Se o Firestore ainda não estiver criado, acesse o Console Firebase, crie o banco no modo de produção e publique as regras abaixo.</p>
+        <div class="warning-note">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex:0 0 auto"><path d="M12 9v4M12 17h.01M10.3 4.7 3 18a1.3 1.3 0 0 0 1.1 2h15.8A1.3 1.3 0 0 0 21 18L13.7 4.7a2 2 0 0 0-3.4 0Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Como não existe login, essas regras permitem acesso ao banco por qualquer pessoa que conheça a configuração do projeto. Para uso pessoal, mantenha o endereço do app privado e considere ativar o Firebase App Check.</span>
+        </div>
+        <pre class="rules-box" id="rulesText">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /rifas/{rifaId} {
+      allow read, write: if true;
+      match /compradores/{compradorId} {
+        allow read, write: if true;
+      }
+    }
+  }
+}</pre>
+      </div>
+      <footer class="modal-foot">
+        <button class="secondary-btn" type="button" data-close="setupModal">Fechar</button>
+        <button class="primary-btn" type="button" id="copyRulesBtn">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+          Copiar regras
+        </button>
+      </footer>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="drawModal" hidden>
+    <section class="modal compact draw-modal" role="dialog" aria-modal="true" aria-labelledby="drawKicker">
+      <div class="draw-stage">
+        <button class="icon-btn draw-close" id="drawCloseBtn" type="button" aria-label="Fechar sorteio" hidden>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round"/></svg>
+        </button>
+        <div class="draw-kicker" id="drawKicker">Sorteando o número ganhador</div>
+        <div class="draw-number spinning" id="drawNumber">—</div>
+        <div class="draw-countdown" id="drawCountdown">Preparando...</div>
+        <div class="winner-reveal" id="winnerReveal" hidden>
+          <small>Parabéns!</small>
+          <strong id="drawWinnerName">—</strong>
+          <span id="drawWinnerPhone">—</span>
+        </div>
+        <div class="draw-actions" id="drawActions" hidden>
+          <button class="secondary-btn" type="button" id="drawDoneBtn">Fechar</button>
+          <a class="primary-btn" id="drawWhatsAppLink" href="#" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+  <div class="saving-overlay" id="savingOverlay" hidden><div class="saving-pill"><span class="spinner"></span><span id="savingText">Salvando...</span></div></div>
+
+  <script type="module">
+    /*
+      Aplicativo de arquivo único. O Firebase exige que o Firestore exista e que
+      suas regras permitam as operações anônimas descritas no painel de ajuda.
+    */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import {
+      initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager,
+      collection, doc, setDoc, updateDoc, deleteDoc, getDoc, getDocs, onSnapshot,
+      serverTimestamp, writeBatch, runTransaction
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA7OrNDiOaMPzKoYa8O81YGZn0blfpvwMo",
+      authDomain: "gerenciador-rifa-9c563.firebaseapp.com",
+      projectId: "gerenciador-rifa-9c563",
+      storageBucket: "gerenciador-rifa-9c563.firebasestorage.app",
+      messagingSenderId: "1060220299537",
+      appId: "1:1060220299537:web:f4ca6a31d702306f4104b0"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    let db;
+    try {
+      db = initializeFirestore(app, {
+        localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+      });
+    } catch (error) {
+      db = getFirestore(app);
+    }
+
+    const $ = (selector, root = document) => root.querySelector(selector);
+    const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+    const state = {
+      raffles: [],
+      selectedId: localStorage.getItem("rifas:selected") || null,
+      buyers: [],
+      buyerUnsubscribe: null,
+      buyerListenerRaffleId: null,
+      raffleEditingId: null,
+      buyerEditingId: null,
+      buyerSelection: new Set(),
+      numberFilter: "all",
+      numberLimit: 360,
+      activeTab: "numbers",
+      confirmResolve: null,
+      drawing: false,
+      initialLoad: true
+    };
+
+    const elements = {
+      sidebar: $("#sidebar"), drawerBackdrop: $("#drawerBackdrop"), raffleList: $("#raffleList"),
+      emptyState: $("#emptyState"), detailView: $("#detailView"), connection: $("#connectionStatus"),
+      title: $("#raffleTitle"), prize: $("#rafflePrize"), statusText: $("#raffleStatusText"),
+      totalNumbers: $("#totalNumbers"), soldNumbers: $("#soldNumbers"), availableNumbers: $("#availableNumbers"),
+      salesProgress: $("#salesProgress"), drawRule: $("#drawRule"), numberGrid: $("#numberGrid"),
+      numbersFooter: $("#numbersFooter"), numberResultsNote: $("#numberResultsNote"), buyersList: $("#buyersList"),
+      numbersTabCount: $("#numbersTabCount"), buyersTabCount: $("#buyersTabCount"),
+      winnerBanner: $("#winnerBanner"), savingOverlay: $("#savingOverlay"), savingText: $("#savingText")
+    };
+
+    function selectedRaffle() {
+      return state.raffles.find(item => item.id === state.selectedId) || null;
+    }
+
+    function escapeHtml(value = "") {
+      return String(value).replace(/[&<>'"]/g, char => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+      })[char]);
+    }
+
+    function digits(value = "") { return String(value).replace(/\D/g, ""); }
+
+    function formatPhone(value = "") {
+      const raw = digits(value).replace(/^55(?=\d{10,11}$)/, "").slice(0, 11);
+      if (!raw) return "";
+      if (raw.length <= 2) return `(${raw}`;
+      if (raw.length <= 6) return `(${raw.slice(0,2)}) ${raw.slice(2)}`;
+      if (raw.length <= 10) return `(${raw.slice(0,2)}) ${raw.slice(2,6)}-${raw.slice(6)}`;
+      return `(${raw.slice(0,2)}) ${raw.slice(2,7)}-${raw.slice(7)}`;
+    }
+
+    function whatsappUrl(phone, message = "") {
+      let raw = digits(phone);
+      if (!raw.startsWith("55")) raw = `55${raw}`;
+      return `https://wa.me/${raw}${message ? `?text=${encodeURIComponent(message)}` : ""}`;
+    }
+
+    function formatNumber(value, total) {
+      return String(value).padStart(Math.max(2, String(total || 0).length), "0");
+    }
+
+    function formatDate(value) {
+      if (!value) return "Data não definida";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Data não definida";
+      return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" }).format(date);
+    }
+
+    function timestampMillis(value) {
+      if (!value) return 0;
+      if (typeof value.toMillis === "function") return value.toMillis();
+      if (value.seconds) return value.seconds * 1000;
+      const parsed = new Date(value).getTime();
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function setBusy(active, text = "Salvando...") {
+      elements.savingText.textContent = text;
+      elements.savingOverlay.hidden = !active;
+    }
+
+    function toast(message, type = "success") {
+      const item = document.createElement("div");
+      item.className = `toast ${type}`;
+      const icon = type === "error"
+        ? '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6" stroke-linecap="round"/></svg>'
+        : '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.6 2.6L16.5 9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      item.innerHTML = `${icon}<span>${escapeHtml(message)}</span><button type="button" aria-label="Fechar">×</button>`;
+      $("#toastStack").appendChild(item);
+      const remove = () => item.remove();
+      $("button", item).addEventListener("click", remove);
+      setTimeout(remove, 4600);
+    }
+
+    function friendlyError(error) {
+      console.error(error);
+      const code = String(error?.code || "");
+      if (code.includes("permission-denied")) return "O Firestore bloqueou o acesso. Confira as regras na opção de ajuda.";
+      if (code.includes("unavailable") || !navigator.onLine) return "Sem conexão no momento. Tente novamente quando a internet voltar.";
+      if (code.includes("failed-precondition")) return "Não foi possível concluir agora. Atualize a página e tente novamente.";
+      return error?.message || "Ocorreu um erro. Tente novamente.";
+    }
+
+    function setConnection(kind, label) {
+      elements.connection.className = `connection ${kind || ""}`.trim();
+      $("span:last-child", elements.connection).textContent = label;
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => {
+        const focusable = $("input:not([type=hidden]), button:not([disabled]), select, textarea, a[href]", modal);
+        focusable?.focus();
+      });
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal || (id === "drawModal" && state.drawing)) return;
+      modal.hidden = true;
+      if (!$$('.modal-backdrop:not([hidden])').length) document.body.style.overflow = "";
+    }
+
+    function closeDrawer() {
+      elements.sidebar.classList.remove("open");
+      elements.drawerBackdrop.classList.remove("show");
+    }
+
+    function openDrawer() {
+      elements.sidebar.classList.add("open");
+      elements.drawerBackdrop.classList.add("show");
+    }
+
+    function confirmAction({ title, message, confirmLabel = "Confirmar", tone = "danger" }) {
+      $("#confirmTitle").textContent = title;
+      $("#confirmMessage").textContent = message;
+      const action = $("#confirmAction");
+      action.textContent = confirmLabel;
+      action.className = tone === "primary" ? "primary-btn" : "danger-btn";
+      openModal("confirmModal");
+      return new Promise(resolve => { state.confirmResolve = resolve; });
+    }
+
+    function settleConfirm(value) {
+      closeModal("confirmModal");
+      if (state.confirmResolve) state.confirmResolve(value);
+      state.confirmResolve = null;
+    }
+
+    function renderRaffleList() {
+      if (!state.raffles.length) {
+        elements.raffleList.innerHTML = '<div class="sidebar-empty">Nenhuma rifa cadastrada ainda.</div>';
+        return;
+      }
+      elements.raffleList.innerHTML = state.raffles.map(raffle => {
+        const total = Number(raffle.quantidadeNumeros || 0);
+        const sold = Object.keys(raffle.numerosOcupados || {}).length;
+        const percentage = total ? Math.min(100, Math.round(sold / total * 100)) : 0;
+        const done = Boolean(raffle.vencedor);
+        return `<button class="raffle-card ${raffle.id === state.selectedId ? "is-active" : ""}" type="button" data-raffle-id="${escapeHtml(raffle.id)}">
+          <span class="raffle-card-title">
+            <strong>${escapeHtml(raffle.nome || "Rifa sem nome")}</strong>
+            <span class="status-chip ${done ? "done" : ""}">${done ? "Sorteada" : "Ativa"}</span>
+          </span>
+          <span class="raffle-card-meta"><span>${sold} de ${total}</span><span>${percentage}%</span></span>
+          <span class="mini-progress"><span style="width:${percentage}%"></span></span>
+        </button>`;
+      }).join("");
+    }
+
+    function renderDetail() {
+      const raffle = selectedRaffle();
+      elements.emptyState.hidden = Boolean(raffle);
+      elements.detailView.hidden = !raffle;
+      if (!raffle) return;
+
+      const total = Number(raffle.quantidadeNumeros || 0);
+      const sold = Object.keys(raffle.numerosOcupados || {}).length;
+      const available = Math.max(0, total - sold);
+      const percentage = total ? Math.min(100, sold / total * 100) : 0;
+      elements.title.textContent = raffle.nome || "Rifa sem nome";
+      elements.prize.textContent = `Prêmio: ${raffle.premio || "Não informado"}`;
+      elements.statusText.textContent = raffle.vencedor ? "Rifa sorteada" : "Rifa ativa";
+      elements.totalNumbers.textContent = total.toLocaleString("pt-BR");
+      elements.soldNumbers.textContent = sold.toLocaleString("pt-BR");
+      elements.availableNumbers.textContent = available.toLocaleString("pt-BR");
+      elements.salesProgress.style.width = `${percentage}%`;
+      elements.drawRule.textContent = raffle.tipoSorteio === "soldout" ? "Ao esgotar os números" : formatDate(raffle.dataSorteio);
+      elements.numbersTabCount.textContent = total;
+      elements.buyersTabCount.textContent = state.buyers.length;
+      $("#drawBtn").innerHTML = raffle.vencedor
+        ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6v5h-5M4 18v-5h5M18.2 9A7 7 0 0 0 6 7.2L4 11M6 15a7 7 0 0 0 12 1.8l2-3.8" stroke-linecap="round" stroke-linejoin="round"/></svg> Sortear novamente'
+        : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 1.5 4.3L18 9l-4.5 1.7L12 15l-1.5-4.3L6 9l4.5-1.7L12 3ZM18.5 15l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8.8-2.2Z" stroke-linecap="round" stroke-linejoin="round"/></svg> Sortear';
+
+      if (raffle.vencedor) {
+        const winner = raffle.vencedor;
+        elements.winnerBanner.hidden = false;
+        $("#winnerBannerNumber").textContent = formatNumber(winner.numero, total);
+        $("#winnerBannerName").textContent = winner.nome || "Ganhador";
+        $("#winnerBannerPhone").textContent = formatPhone(winner.whatsapp) || winner.whatsapp || "Telefone não informado";
+        $("#winnerWhatsAppLink").href = whatsappUrl(winner.whatsapp, `Olá, ${winner.nome}! Você foi o ganhador da rifa ${raffle.nome}, com o número ${formatNumber(winner.numero, total)}. Parabéns!`);
+      } else {
+        elements.winnerBanner.hidden = true;
+      }
+      renderNumberGrid();
+      renderBuyers();
+    }
+
+    function getFilteredNumbers() {
+      const raffle = selectedRaffle();
+      if (!raffle) return [];
+      const total = Number(raffle.quantidadeNumeros || 0);
+      const occupied = raffle.numerosOcupados || {};
+      const query = digits($("#numberSearch").value);
+      const found = [];
+      for (let number = 1; number <= total; number += 1) {
+        const chosen = Boolean(occupied[String(number)]);
+        if (state.numberFilter === "available" && chosen) continue;
+        if (state.numberFilter === "chosen" && !chosen) continue;
+        const label = formatNumber(number, total);
+        if (query && !label.includes(query) && !String(number).includes(query)) continue;
+        found.push(number);
+      }
+      return found;
+    }
+
+    function renderNumberGrid() {
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      const total = Number(raffle.quantidadeNumeros || 0);
+      const occupied = raffle.numerosOcupados || {};
+      const winnerNumber = Number(raffle.vencedor?.numero || 0);
+      const all = getFilteredNumbers();
+      const visible = all.slice(0, state.numberLimit);
+      elements.numberGrid.innerHTML = visible.map(number => {
+        const buyerId = occupied[String(number)] || "";
+        const chosen = Boolean(buyerId);
+        const winner = winnerNumber === number;
+        const label = formatNumber(number, total);
+        const status = winner ? "ganhador" : chosen ? "escolhido" : "disponível";
+        return `<button class="number-cell ${chosen ? "chosen" : ""} ${winner ? "winner" : ""}" type="button" data-number="${number}" data-buyer-id="${escapeHtml(buyerId)}" aria-label="Número ${label}, ${status}" title="${chosen ? "Ver comprador" : "Cadastrar este número"}">${label}</button>`;
+      }).join("");
+      elements.numbersFooter.hidden = visible.length >= all.length;
+      elements.numberResultsNote.textContent = all.length
+        ? `Exibindo ${visible.length.toLocaleString("pt-BR")} de ${all.length.toLocaleString("pt-BR")} números neste filtro.`
+        : "Nenhum número encontrado neste filtro.";
+    }
+
+    function renderBuyers() {
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      const total = Number(raffle.quantidadeNumeros || 0);
+      const search = $("#buyerSearch").value.trim().toLocaleLowerCase("pt-BR");
+      const buyers = state.buyers.filter(buyer => {
+        if (!search) return true;
+        const numbers = (buyer.numeros || []).map(number => formatNumber(number, total)).join(" ");
+        return `${buyer.nome || ""} ${buyer.whatsapp || ""} ${numbers}`.toLocaleLowerCase("pt-BR").includes(search);
+      });
+      elements.buyersTabCount.textContent = state.buyers.length;
+      if (!buyers.length) {
+        elements.buyersList.innerHTML = `<div class="list-empty">
+          <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M16 20a6 6 0 0 0-12 0M10 14a4 4 0 1 0 0-8M18 8v6M15 11h6" stroke-linecap="round"/></svg>
+          <strong>${search ? "Nenhum comprador encontrado" : "Nenhum comprador cadastrado"}</strong>
+          <span>${search ? "Tente outro termo de busca." : "Cadastre a primeira pessoa e selecione seus números."}</span>
+        </div>`;
+        return;
+      }
+      elements.buyersList.innerHTML = buyers.map(buyer => {
+        const sorted = [...(buyer.numeros || [])].sort((a,b) => a-b);
+        const chips = sorted.map(number => `<span class="number-chip">${formatNumber(number, total)}</span>`).join("");
+        return `<article class="buyer-row" data-buyer-id="${escapeHtml(buyer.id)}">
+          <div class="buyer-name"><strong>${escapeHtml(buyer.nome || "Sem nome")}</strong><small>${sorted.length} ${sorted.length === 1 ? "número" : "números"}</small></div>
+          <div class="phone-cell"><a class="phone-link" href="${whatsappUrl(buyer.whatsapp)}" target="_blank" rel="noopener">${escapeHtml(formatPhone(buyer.whatsapp) || buyer.whatsapp || "Sem telefone")}</a></div>
+          <div class="buyer-numbers number-chips">${chips}</div>
+          <div class="row-actions">
+            <button class="icon-btn" type="button" data-action="edit-buyer" aria-label="Editar ${escapeHtml(buyer.nome)}" title="Editar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m14 5 5 5M4 20l4.2-1 10-10a2.1 2.1 0 0 0-3-3l-10 10L4 20Z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <button class="icon-btn danger-text" type="button" data-action="delete-buyer" aria-label="Excluir ${escapeHtml(buyer.nome)}" title="Excluir">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </article>`;
+      }).join("");
+    }
+
+    function selectRaffle(id) {
+      if (state.selectedId === id && selectedRaffle() && state.buyerListenerRaffleId === id && state.buyerUnsubscribe) {
+        closeDrawer();
+        return;
+      }
+      state.selectedId = id;
+      localStorage.setItem("rifas:selected", id);
+      state.numberLimit = 360;
+      state.buyers = [];
+      state.buyerUnsubscribe?.();
+      state.buyerListenerRaffleId = id;
+      const buyersRef = collection(db, "rifas", id, "compradores");
+      state.buyerUnsubscribe = onSnapshot(buyersRef, snapshot => {
+        state.buyers = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
+          .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+        renderDetail();
+      }, error => {
+        state.buyerUnsubscribe = null;
+        state.buyerListenerRaffleId = null;
+        toast(friendlyError(error), "error");
+      });
+      renderRaffleList();
+      renderDetail();
+      closeDrawer();
+    }
+
+    function subscribeRaffles() {
+      onSnapshot(collection(db, "rifas"), { includeMetadataChanges: true }, snapshot => {
+        state.raffles = snapshot.docs.map(item => ({ id: item.id, ...item.data() }))
+          .sort((a,b) => timestampMillis(b.criadoEm) - timestampMillis(a.criadoEm));
+        const hasSelected = state.raffles.some(item => item.id === state.selectedId);
+        if (!hasSelected) {
+          state.selectedId = state.raffles[0]?.id || null;
+          if (state.selectedId) localStorage.setItem("rifas:selected", state.selectedId);
+          else localStorage.removeItem("rifas:selected");
+        }
+        renderRaffleList();
+        if (state.selectedId) {
+          if (!state.buyerUnsubscribe || state.buyerListenerRaffleId !== state.selectedId) selectRaffle(state.selectedId);
+          else renderDetail();
+        } else {
+          state.buyerUnsubscribe?.();
+          state.buyerUnsubscribe = null;
+          state.buyerListenerRaffleId = null;
+          state.buyers = [];
+          renderDetail();
+        }
+        state.initialLoad = false;
+        const isOnline = navigator.onLine;
+        setConnection(isOnline && !snapshot.metadata.fromCache ? "connected" : "", !isOnline ? "Modo offline" : snapshot.metadata.fromCache ? "Sincronizando..." : "Dados sincronizados");
+      }, error => {
+        state.initialLoad = false;
+        setConnection("error", "Falha na conexão");
+        elements.raffleList.innerHTML = '<div class="sidebar-empty">Não foi possível carregar as rifas.</div>';
+        toast(friendlyError(error), "error");
+      });
+    }
+
+    function openRaffleForm(raffle = null) {
+      state.raffleEditingId = raffle?.id || null;
+      $("#raffleModalTitle").textContent = raffle ? "Editar rifa" : "Nova rifa";
+      $("#saveRaffleBtn").textContent = raffle ? "Salvar alterações" : "Salvar rifa";
+      $("#raffleName").value = raffle?.nome || "";
+      $("#rafflePrizeInput").value = raffle?.premio || "";
+      $("#raffleTotal").value = raffle?.quantidadeNumeros || 100;
+      const mode = raffle?.tipoSorteio || "date";
+      $(`input[name="drawMode"][value="${mode}"]`).checked = true;
+      const localDate = raffle?.dataSorteio ? new Date(raffle.dataSorteio) : new Date(Date.now() + 7 * 86400000);
+      localDate.setMinutes(localDate.getMinutes() - localDate.getTimezoneOffset());
+      $("#raffleDate").value = localDate.toISOString().slice(0,16);
+      toggleDateField();
+      openModal("raffleModal");
+    }
+
+    function toggleDateField() {
+      const mode = $('input[name="drawMode"]:checked').value;
+      const isDate = mode === "date";
+      $("#drawDateField").hidden = !isDate;
+      $("#raffleDate").required = isDate;
+    }
+
+    async function createRaffleRecord({ nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros }) {
+      const ref = doc(collection(db, "rifas"));
+      await setDoc(ref, {
+        nome, premio, tipoSorteio, dataSorteio: dataSorteio || null, quantidadeNumeros,
+        numerosOcupados: {}, vencedor: null, criadoEm: serverTimestamp(), atualizadoEm: serverTimestamp()
+      });
+      return ref.id;
+    }
+
+    async function saveRaffle(event) {
+      event?.preventDefault();
+      const nome = $("#raffleName").value.trim();
+      const premio = $("#rafflePrizeInput").value.trim();
+      const tipoSorteio = $('input[name="drawMode"]:checked').value;
+      const total = Number($("#raffleTotal").value);
+      const rawDate = $("#raffleDate").value;
+      if (!nome || !premio) return toast("Preencha o nome da rifa e o prêmio.", "error");
+      if (!Number.isInteger(total) || total < 1 || total > 10000) return toast("Informe uma quantidade entre 1 e 10.000.", "error");
+      if (tipoSorteio === "date" && !rawDate) return toast("Informe a data do sorteio.", "error");
+      const dataSorteio = tipoSorteio === "date" ? new Date(rawDate).toISOString() : null;
+
+      try {
+        setBusy(true, state.raffleEditingId ? "Atualizando rifa..." : "Criando rifa...");
+        if (state.raffleEditingId) {
+          const raffle = selectedRaffle();
+          const highestOccupied = Math.max(0, ...Object.keys(raffle?.numerosOcupados || {}).map(Number));
+          if (total < highestOccupied) throw new Error(`Existem números escolhidos até ${highestOccupied}. A quantidade não pode ser menor que isso.`);
+          await updateDoc(doc(db, "rifas", state.raffleEditingId), {
+            nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros: total, atualizadoEm: serverTimestamp()
+          });
+          toast("Rifa atualizada com sucesso.");
+        } else {
+          const id = await createRaffleRecord({ nome, premio, tipoSorteio, dataSorteio, quantidadeNumeros: total });
+          state.selectedId = id;
+          localStorage.setItem("rifas:selected", id);
+          toast("Rifa criada com sucesso.");
+        }
+        closeModal("raffleModal");
+      } catch (error) {
+        toast(friendlyError(error), "error");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function openBuyerForm(buyer = null, initialNumbers = []) {
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      state.buyerEditingId = buyer?.id || null;
+      state.buyerSelection = new Set((buyer?.numeros || initialNumbers).map(Number));
+      $("#buyerModalTitle").textContent = buyer ? "Editar comprador" : "Novo comprador";
+      $("#saveBuyerBtn").textContent = buyer ? "Salvar alterações" : "Salvar comprador";
+      $("#buyerName").value = buyer?.nome || "";
+      $("#buyerPhone").value = formatPhone(buyer?.whatsapp || "");
+      $("#pickerSearch").value = "";
+      renderPicker();
+      openModal("buyerModal");
+    }
+
+    function renderPicker() {
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      const total = Number(raffle.quantidadeNumeros || 0);
+      const occupied = raffle.numerosOcupados || {};
+      const search = digits($("#pickerSearch").value);
+      const numbers = [];
+      for (let number = 1; number <= total; number += 1) {
+        const label = formatNumber(number, total);
+        if (search && !label.includes(search) && !String(number).includes(search)) continue;
+        numbers.push(number);
+      }
+      const visible = numbers.slice(0, 800);
+      $("#pickerGrid").innerHTML = visible.map(number => {
+        const owner = occupied[String(number)];
+        const unavailable = owner && owner !== state.buyerEditingId;
+        const selected = state.buyerSelection.has(number);
+        return `<button class="picker-number ${selected ? "is-selected" : ""}" type="button" data-picker-number="${number}" ${unavailable ? "disabled" : ""} aria-pressed="${selected}" aria-label="Número ${formatNumber(number,total)}${unavailable ? ", indisponível" : ""}">${formatNumber(number,total)}</button>`;
+      }).join("");
+      const selected = [...state.buyerSelection].sort((a,b) => a-b);
+      $("#selectedCount").textContent = selected.length ? `${selected.length} ${selected.length === 1 ? "número selecionado" : "números selecionados"}` : "Nenhum número selecionado";
+      $("#selectedNumbers").textContent = selected.length ? selected.map(n => formatNumber(n,total)).join(", ") : "Selecione abaixo";
+      $("#pickerNote").textContent = numbers.length > visible.length
+        ? `Exibindo os primeiros ${visible.length} resultados. Use a busca para localizar outro número.`
+        : "Números riscados já pertencem a outro comprador.";
+    }
+
+    async function saveBuyerRecord({ raffleId, buyerId = null, nome, whatsapp, numeros }) {
+      const raffleRef = doc(db, "rifas", raffleId);
+      const buyerRef = buyerId ? doc(db, "rifas", raffleId, "compradores", buyerId) : doc(collection(db, "rifas", raffleId, "compradores"));
+      await runTransaction(db, async transaction => {
+        const raffleSnap = await transaction.get(raffleRef);
+        if (!raffleSnap.exists()) throw new Error("Esta rifa não existe mais.");
+        const raffleData = raffleSnap.data();
+        const total = Number(raffleData.quantidadeNumeros || 0);
+        const uniqueNumbers = [...new Set(numeros.map(Number))].sort((a,b) => a-b);
+        if (!uniqueNumbers.length) throw new Error("Selecione pelo menos um número.");
+        if (uniqueNumbers.some(number => !Number.isInteger(number) || number < 1 || number > total)) throw new Error("Há um número fora do intervalo desta rifa.");
+        let oldNumbers = [];
+        if (buyerId) {
+          const buyerSnap = await transaction.get(buyerRef);
+          if (!buyerSnap.exists()) throw new Error("Este comprador não existe mais.");
+          oldNumbers = buyerSnap.data().numeros || [];
+        }
+        const occupied = { ...(raffleData.numerosOcupados || {}) };
+        oldNumbers.forEach(number => {
+          if (occupied[String(number)] === buyerRef.id) delete occupied[String(number)];
+        });
+        for (const number of uniqueNumbers) {
+          const owner = occupied[String(number)];
+          if (owner && owner !== buyerRef.id) throw new Error(`O número ${formatNumber(number,total)} acabou de ser escolhido por outra pessoa.`);
+        }
+        uniqueNumbers.forEach(number => { occupied[String(number)] = buyerRef.id; });
+        transaction.update(raffleRef, { numerosOcupados: occupied, atualizadoEm: serverTimestamp() });
+        const buyerData = { nome, whatsapp: digits(whatsapp), numeros: uniqueNumbers, atualizadoEm: serverTimestamp() };
+        if (!buyerId) buyerData.criadoEm = serverTimestamp();
+        transaction.set(buyerRef, buyerData, { merge: true });
+      });
+      return buyerRef.id;
+    }
+
+    async function saveBuyer(event) {
+      event?.preventDefault();
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      const nome = $("#buyerName").value.trim();
+      const whatsapp = digits($("#buyerPhone").value);
+      const numeros = [...state.buyerSelection];
+      if (!nome) return toast("Informe o nome do comprador.", "error");
+      if (whatsapp.length < 10 || whatsapp.length > 13) return toast("Informe um número de WhatsApp válido.", "error");
+      if (!numeros.length) return toast("Selecione pelo menos um número.", "error");
+      try {
+        setBusy(true, state.buyerEditingId ? "Atualizando comprador..." : "Cadastrando comprador...");
+        await saveBuyerRecord({ raffleId: raffle.id, buyerId: state.buyerEditingId, nome, whatsapp, numeros });
+        closeModal("buyerModal");
+        toast(state.buyerEditingId ? "Comprador atualizado." : "Comprador cadastrado.");
+      } catch (error) {
+        toast(friendlyError(error), "error");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function deleteBuyer(buyer) {
+      const raffle = selectedRaffle();
+      if (!raffle || !buyer) return;
+      const confirmed = await confirmAction({
+        title: "Excluir comprador?",
+        message: `${buyer.nome} e seus ${(buyer.numeros || []).length} números serão removidos desta rifa.`,
+        confirmLabel: "Excluir comprador"
+      });
+      if (!confirmed) return;
+      try {
+        setBusy(true, "Excluindo comprador...");
+        const raffleRef = doc(db, "rifas", raffle.id);
+        const buyerRef = doc(db, "rifas", raffle.id, "compradores", buyer.id);
+        await runTransaction(db, async transaction => {
+          const raffleSnap = await transaction.get(raffleRef);
+          const buyerSnap = await transaction.get(buyerRef);
+          if (!raffleSnap.exists()) throw new Error("Esta rifa não existe mais.");
+          if (!buyerSnap.exists()) return;
+          const occupied = { ...(raffleSnap.data().numerosOcupados || {}) };
+          (buyerSnap.data().numeros || []).forEach(number => {
+            if (occupied[String(number)] === buyer.id) delete occupied[String(number)];
+          });
+          transaction.update(raffleRef, { numerosOcupados: occupied, atualizadoEm: serverTimestamp() });
+          transaction.delete(buyerRef);
+        });
+        toast("Comprador excluído.");
+      } catch (error) {
+        toast(friendlyError(error), "error");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    async function deleteRaffle() {
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      const confirmed = await confirmAction({
+        title: "Excluir esta rifa?",
+        message: `A rifa “${raffle.nome}”, todos os compradores e números registrados serão apagados definitivamente.`,
+        confirmLabel: "Excluir rifa"
+      });
+      if (!confirmed) return;
+      try {
+        setBusy(true, "Excluindo rifa...");
+        const buyerSnapshots = await getDocs(collection(db, "rifas", raffle.id, "compradores"));
+        for (let start = 0; start < buyerSnapshots.docs.length; start += 450) {
+          const batch = writeBatch(db);
+          buyerSnapshots.docs.slice(start, start + 450).forEach(item => batch.delete(item.ref));
+          await batch.commit();
+        }
+        await deleteDoc(doc(db, "rifas", raffle.id));
+        $("#moreMenu").hidden = true;
+        toast("Rifa excluída.");
+      } catch (error) {
+        toast(friendlyError(error), "error");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    function secureRandomIndex(length) {
+      if (length < 1) throw new Error("Não há números para sortear.");
+      const max = 0x100000000;
+      const limit = max - (max % length);
+      const values = new Uint32Array(1);
+      do { crypto.getRandomValues(values); } while (values[0] >= limit);
+      return values[0] % length;
+    }
+
+    async function beginDraw() {
+      const raffle = selectedRaffle();
+      if (!raffle) return;
+      const entries = Object.entries(raffle.numerosOcupados || {}).map(([number, buyerId]) => ({ number: Number(number), buyerId }));
+      if (!entries.length) return toast("Cadastre pelo menos um número escolhido antes de sortear.", "error");
+      if (raffle.vencedor) {
+        const redo = await confirmAction({
+          title: "Realizar um novo sorteio?",
+          message: "O resultado atual será substituído pelo novo ganhador.",
+          confirmLabel: "Sortear novamente",
+          tone: "primary"
+        });
+        if (!redo) return;
+      }
+
+      state.drawing = true;
+      $("#drawCloseBtn").hidden = true;
+      $("#drawActions").hidden = true;
+      $("#winnerReveal").hidden = true;
+      $("#drawNumber").classList.add("spinning");
+      $("#drawKicker").textContent = "Sorteando o número ganhador";
+      $("#drawCountdown").textContent = "7 segundos...";
+      openModal("drawModal");
+      const total = Number(raffle.quantidadeNumeros || 0);
+      const startedAt = performance.now();
+      const duration = 7000;
+      const animation = setInterval(() => {
+        const sample = entries[secureRandomIndex(entries.length)];
+        $("#drawNumber").textContent = formatNumber(sample.number, total);
+        const remaining = Math.max(0, Math.ceil((duration - (performance.now() - startedAt)) / 1000));
+        $("#drawCountdown").textContent = remaining > 0 ? `${remaining} ${remaining === 1 ? "segundo" : "segundos"}...` : "Conferindo resultado...";
+      }, 82);
+
+      try {
+        await new Promise(resolve => setTimeout(resolve, duration));
+        clearInterval(animation);
+        const winningEntry = entries[secureRandomIndex(entries.length)];
+        let winner = state.buyers.find(item => item.id === winningEntry.buyerId);
+        if (!winner) {
+          const winnerSnap = await getDoc(doc(db, "rifas", raffle.id, "compradores", winningEntry.buyerId));
+          if (winnerSnap.exists()) winner = { id: winnerSnap.id, ...winnerSnap.data() };
+        }
+        if (!winner) throw new Error("O comprador do número sorteado não foi encontrado. Revise os registros.");
+        const winnerSnapshot = {
+          numero: winningEntry.number,
+          compradorId: winner.id,
+          nome: winner.nome,
+          whatsapp: winner.whatsapp,
+          sorteadoEm: new Date().toISOString()
+        };
+        await updateDoc(doc(db, "rifas", raffle.id), { vencedor: winnerSnapshot, atualizadoEm: serverTimestamp() });
+        $("#drawNumber").textContent = formatNumber(winningEntry.number, total);
+        $("#drawNumber").classList.remove("spinning");
+        $("#drawKicker").textContent = "Número sorteado";
+        $("#drawCountdown").textContent = "Resultado salvo com sucesso";
+        $("#drawWinnerName").textContent = winner.nome;
+        $("#drawWinnerPhone").textContent = formatPhone(winner.whatsapp) || winner.whatsapp;
+        $("#drawWhatsAppLink").href = whatsappUrl(winner.whatsapp, `Olá, ${winner.nome}! Você foi o ganhador da rifa ${raffle.nome}, com o número ${formatNumber(winningEntry.number,total)}. Parabéns!`);
+        $("#winnerReveal").hidden = false;
+        $("#drawActions").hidden = false;
+        $("#drawCloseBtn").hidden = false;
+        state.drawing = false;
+      } catch (error) {
+        clearInterval(animation);
+        state.drawing = false;
+        closeModal("drawModal");
+        toast(friendlyError(error), "error");
+      }
+    }
+
+    function setActiveTab(tab) {
+      state.activeTab = tab;
+      const numbers = tab === "numbers";
+      $("#numbersTab").classList.toggle("is-active", numbers);
+      $("#buyersTab").classList.toggle("is-active", !numbers);
+      $("#numbersTab").setAttribute("aria-selected", String(numbers));
+      $("#buyersTab").setAttribute("aria-selected", String(!numbers));
+      $("#numbersPanel").hidden = !numbers;
+      $("#buyersPanel").hidden = numbers;
+    }
+
+    function setupEvents() {
+      $("#newRaffleBtn").addEventListener("click", () => openRaffleForm());
+      $("#emptyNewRaffleBtn").addEventListener("click", () => openRaffleForm());
+      $("#addBuyerBtn").addEventListener("click", () => openBuyerForm());
+      $("#addBuyerPanelBtn").addEventListener("click", () => openBuyerForm());
+      $("#editRaffleBtn").addEventListener("click", () => { $("#moreMenu").hidden = true; openRaffleForm(selectedRaffle()); });
+      $("#deleteRaffleBtn").addEventListener("click", deleteRaffle);
+      $("#drawBtn").addEventListener("click", beginDraw);
+      $("#drawDoneBtn").addEventListener("click", () => closeModal("drawModal"));
+      $("#drawCloseBtn").addEventListener("click", () => closeModal("drawModal"));
+      $("#menuBtn").addEventListener("click", openDrawer);
+      elements.drawerBackdrop.addEventListener("click", closeDrawer);
+      $("#openSetupBtn").addEventListener("click", () => openModal("setupModal"));
+      $("#copyRulesBtn").addEventListener("click", async () => {
+        try { await navigator.clipboard.writeText($("#rulesText").textContent); toast("Regras copiadas."); }
+        catch { toast("Não foi possível copiar automaticamente.", "error"); }
+      });
+
+      $("#moreBtn").addEventListener("click", event => {
+        event.stopPropagation();
+        const menu = $("#moreMenu");
+        menu.hidden = !menu.hidden;
+        $("#moreBtn").setAttribute("aria-expanded", String(!menu.hidden));
+      });
+      document.addEventListener("click", event => {
+        if (!event.target.closest(".more-menu-wrap")) {
+          $("#moreMenu").hidden = true;
+          $("#moreBtn").setAttribute("aria-expanded", "false");
+        }
+      });
+
+      elements.raffleList.addEventListener("click", event => {
+        const card = event.target.closest("[data-raffle-id]");
+        if (card) selectRaffle(card.dataset.raffleId);
+      });
+
+      $("#raffleForm").addEventListener("submit", saveRaffle);
+      $("#buyerForm").addEventListener("submit", saveBuyer);
+      $$('input[name="drawMode"]').forEach(input => input.addEventListener("change", toggleDateField));
+      $("#buyerPhone").addEventListener("input", event => { event.target.value = formatPhone(event.target.value); });
+      $("#pickerSearch").addEventListener("input", renderPicker);
+      $("#pickerGrid").addEventListener("click", event => {
+        const button = event.target.closest("[data-picker-number]");
+        if (!button || button.disabled) return;
+        const number = Number(button.dataset.pickerNumber);
+        if (state.buyerSelection.has(number)) state.buyerSelection.delete(number);
+        else state.buyerSelection.add(number);
+        renderPicker();
+      });
+
+      $("#numberFilters").addEventListener("click", event => {
+        const button = event.target.closest("[data-filter]");
+        if (!button) return;
+        state.numberFilter = button.dataset.filter;
+        state.numberLimit = 360;
+        $$("[data-filter]", $("#numberFilters")).forEach(item => item.classList.toggle("is-active", item === button));
+        renderNumberGrid();
+      });
+      $("#numberSearch").addEventListener("input", () => { state.numberLimit = 360; renderNumberGrid(); });
+      $("#loadMoreNumbers").addEventListener("click", () => { state.numberLimit += 360; renderNumberGrid(); });
+      elements.numberGrid.addEventListener("click", event => {
+        const cell = event.target.closest("[data-number]");
+        if (!cell) return;
+        const number = Number(cell.dataset.number);
+        const buyerId = cell.dataset.buyerId;
+        if (buyerId) {
+          const buyer = state.buyers.find(item => item.id === buyerId);
+          if (buyer) openBuyerForm(buyer);
+          else toast("Carregando os dados do comprador. Tente novamente em instantes.", "error");
+        } else openBuyerForm(null, [number]);
+      });
+
+      $("#buyersList").addEventListener("click", event => {
+        const row = event.target.closest("[data-buyer-id]");
+        const action = event.target.closest("[data-action]");
+        if (!row || !action) return;
+        const buyer = state.buyers.find(item => item.id === row.dataset.buyerId);
+        if (!buyer) return;
+        if (action.dataset.action === "edit-buyer") openBuyerForm(buyer);
+        if (action.dataset.action === "delete-buyer") deleteBuyer(buyer);
+      });
+      $("#buyerSearch").addEventListener("input", renderBuyers);
+      $("#numbersTab").addEventListener("click", () => setActiveTab("numbers"));
+      $("#buyersTab").addEventListener("click", () => setActiveTab("buyers"));
+
+      $$('[data-close]').forEach(button => button.addEventListener("click", () => closeModal(button.dataset.close)));
+      $$(".modal-backdrop").forEach(backdrop => backdrop.addEventListener("mousedown", event => {
+        if (event.target === backdrop && !["drawModal", "confirmModal"].includes(backdrop.id)) closeModal(backdrop.id);
+      }));
+      $("#confirmCancel").addEventListener("click", () => settleConfirm(false));
+      $("#confirmAction").addEventListener("click", () => settleConfirm(true));
+      document.addEventListener("keydown", event => {
+        if (event.key !== "Escape") return;
+        if (!$("#confirmModal").hidden) return settleConfirm(false);
+        const open = $$(".modal-backdrop:not([hidden])").at(-1);
+        if (open) closeModal(open.id);
+        else closeDrawer();
+      });
+
+      window.addEventListener("online", () => setConnection("", "Reconectando..."));
+      window.addEventListener("offline", () => setConnection("", "Modo offline"));
+    }
+
+    function registerWebMCPTools() {
+      const context = document.modelContext;
+      if (!context?.registerTool) return;
+      const safeRegister = tool => {
+        try { void Promise.resolve(context.registerTool(tool)).catch(error => console.warn("WebMCP", error)); }
+        catch (error) { console.warn("WebMCP", error); }
+      };
+      safeRegister({
+        name: "list_rifas",
+        title: "Listar rifas",
+        description: "Lista as rifas cadastradas e seus totais de números escolhidos e disponíveis.",
+        inputSchema: { type: "object", properties: {}, additionalProperties: false },
+        annotations: { readOnlyHint: true, untrustedContentHint: true },
+        execute: async () => ({
+          rifas: state.raffles.map(item => ({
+            id: item.id, nome: item.nome, premio: item.premio,
+            total: Number(item.quantidadeNumeros || 0),
+            escolhidos: Object.keys(item.numerosOcupados || {}).length,
+            sorteada: Boolean(item.vencedor)
+          }))
+        })
+      });
+      safeRegister({
+        name: "create_rifa",
+        title: "Criar rifa",
+        description: "Cria uma nova rifa com prêmio, quantidade de números e regra de sorteio.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            nome: { type: "string", minLength: 1, maxLength: 100 },
+            premio: { type: "string", minLength: 1, maxLength: 180 },
+            quantidade: { type: "integer", minimum: 1, maximum: 10000 },
+            tipoSorteio: { type: "string", enum: ["date", "soldout"] },
+            dataSorteio: { type: ["string", "null"] }
+          },
+          required: ["nome", "premio", "quantidade", "tipoSorteio"],
+          additionalProperties: false
+        },
+        annotations: { readOnlyHint: false, untrustedContentHint: false },
+        execute: async input => {
+          if (!input?.nome?.trim() || !input?.premio?.trim()) throw new Error("Nome e prêmio são obrigatórios.");
+          if (!Number.isInteger(input.quantidade) || input.quantidade < 1 || input.quantidade > 10000) throw new Error("Quantidade inválida.");
+          if (input.tipoSorteio === "date" && !input.dataSorteio) throw new Error("A data é obrigatória para sorteio por data.");
+          const id = await createRaffleRecord({
+            nome: input.nome.trim(), premio: input.premio.trim(), tipoSorteio: input.tipoSorteio,
+            dataSorteio: input.tipoSorteio === "date" ? new Date(input.dataSorteio).toISOString() : null,
+            quantidadeNumeros: input.quantidade
+          });
+          return { id, status: "criada" };
+        }
+      });
+      safeRegister({
+        name: "register_comprador",
+        title: "Cadastrar comprador",
+        description: "Cadastra um comprador e reserva seus números em uma rifa existente.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            rifaId: { type: "string", minLength: 1 },
+            nome: { type: "string", minLength: 1, maxLength: 100 },
+            whatsapp: { type: "string", minLength: 10 },
+            numeros: { type: "array", minItems: 1, uniqueItems: true, items: { type: "integer", minimum: 1 } }
+          },
+          required: ["rifaId", "nome", "whatsapp", "numeros"],
+          additionalProperties: false
+        },
+        annotations: { readOnlyHint: false, untrustedContentHint: true },
+        execute: async input => {
+          const phone = digits(input?.whatsapp || "");
+          if (!input?.rifaId || !input?.nome?.trim() || phone.length < 10) throw new Error("Dados do comprador inválidos.");
+          const id = await saveBuyerRecord({ raffleId: input.rifaId, nome: input.nome.trim(), whatsapp: phone, numeros: input.numeros || [] });
+          return { id, status: "cadastrado", numeros: input.numeros };
+        }
+      });
+    }
+
+    setupEvents();
+    subscribeRaffles();
+    registerWebMCPTools();
+  </script>
+</body>
+</html>
